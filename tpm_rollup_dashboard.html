@@ -227,14 +227,14 @@ let filteredSubmissions = [];
 // Paste your "Get Submissions" Power Automate HTTP trigger URL below.
 // See the Setup Guide for step-by-step instructions.
 // ─────────────────────────────────────────────────────────────────
-const READ_FLOW_URL = 'YOUR_READ_FLOW_URL_HERE';
+const READ_FLOW_URL = 'https://defaultb110eddf23ae457ca6f3734d592b28.47.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6e44c72f58ad496dadc58eae0148154f/triggers/manual/paths/invoke?api-version=1';
 
 async function loadDashboard() {
   document.getElementById('loading-state').style.display = 'flex';
   document.getElementById('dashboard-content').style.display = 'none';
   document.getElementById('empty-state').style.display = 'none';
 
-  if (READ_FLOW_URL === 'YOUR_READ_FLOW_URL_HERE') {
+  if (READ_FLOW_URL === 'https://defaultb110eddf23ae457ca6f3734d592b28.47.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6e44c72f58ad496dadc58eae0148154f/triggers/manual/paths/invoke?api-version=1') {
     document.getElementById('loading-state').innerHTML =
       '<div style="text-align:center;max-width:460px">' +
         '<div style="font-size:28px;margin-bottom:12px">⚙️</div>' +
