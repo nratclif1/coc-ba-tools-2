@@ -1151,7 +1151,7 @@ function submitForm() {
     alert('Please complete Section A before submitting.');
     return;
   }
-  if (!FLOW_URL || FLOW_URL.indexOf('powerautomate') === -1 && FLOW_URL.indexOf('logic.azure') === -1) {
+ if (!FLOW_URL || FLOW_URL.length < 20) {
     alert('Setup required: paste your Power Automate URL into the FLOW_URL variable in this file.');
     return;
   }
