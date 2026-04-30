@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CoC Technology — BA Weekly Status Update</title>
+<title>CoC Technology - BA Weekly Status Update</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700;900&display=swap');
 
@@ -155,7 +155,7 @@
   .footer-note{background:var(--navy);border-radius:var(--radius);padding:14px 16px;margin-top:16px}
   .footer-note ul{list-style:none;display:flex;flex-direction:column;gap:6px}
   .footer-note li{font-size:12px;color:rgba(255,255,255,0.75);display:flex;gap:8px;line-height:1.5}
-  .footer-note li::before{content:'—';color:var(--blue);flex-shrink:0}
+  .footer-note li::before{content:'\2014';color:var(--blue);flex-shrink:0}
 
   select option{background:var(--white);color:var(--navy)}
   ::-webkit-scrollbar{width:6px}
@@ -217,7 +217,7 @@
   .adhoc-card-title{font-size:13px;font-weight:700;color:#7a5c00;margin-bottom:12px;display:flex;align-items:center;gap:8px}
   .adhoc-item{font-size:12px;color:var(--text2);padding:7px 0;border-bottom:1px solid rgba(255,197,50,0.2);display:flex;gap:10px;line-height:1.5}
   .adhoc-item:last-child{border-bottom:none;padding-bottom:0}
-  .adhoc-item::before{content:'→';color:#b88900;flex-shrink:0}
+  .adhoc-item::before{content:'\2192';color:#b88900;flex-shrink:0}
   .reset-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:var(--white);border:1.5px solid var(--border2);border-radius:var(--radius);font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Inter Tight',Arial,sans-serif;transition:all 0.15s;margin-bottom:16px}
   .reset-btn:hover{border-color:var(--blue);color:var(--blue)}
 </style>
@@ -226,7 +226,7 @@
 
 <div class="page-header">
   <div class="page-header-left">
-    <h1>CoC Technology — BA Weekly Status Update</h1>
+    <h1>CoC Technology - BA Weekly Status Update</h1>
     <p>Complete all required sections before submitting. This form is the source of truth for weekly reporting.</p>
   </div>
   <div class="due-badge">Due: EOD Thursday</div>
@@ -238,9 +238,9 @@
   <button type="button" class="tab-nav-btn" data-tab="checklist">Reporting Checklist</button>
 </nav>
 
-<!-- ═══════════════════════════════════════════
+<!-- ===========================================
      TAB: WEEKLY UPDATE FORM
-════════════════════════════════════════════ -->
+============================================ -->
 <div class="tab-panel active" id="tab-form">
 <div class="container">
   <div class="progress-bar" id="progress-bar">
@@ -259,7 +259,7 @@
       <div class="sec-title">BA &amp; Sprint Context</div>
       <div class="sec-badges">
         <span class="badge badge-req">Required</span>
-        <span class="chevron" id="chev-0">▼</span>
+        <span class="chevron" id="chev-0">&#9660;</span>
       </div>
     </div>
     <div class="section-body open" id="body-0">
@@ -269,7 +269,7 @@
       </div>
       <div class="grid2">
         <div class="field"><label>Sprint # <span class="req">*</span></label><input type="text" id="sprint-num" placeholder="e.g. Sprint 42"></div>
-        <div class="field"><label>Sprint Dates <span class="req">*</span></label><input type="text" id="sprint-dates" placeholder="e.g. Apr 21 – May 2"></div>
+        <div class="field"><label>Sprint Dates <span class="req">*</span></label><input type="text" id="sprint-dates" placeholder="e.g. Apr 21 - May 2"></div>
       </div>
       <div class="field">
         <label>Engineering Team(s) Supported <span class="req">*</span></label>
@@ -278,12 +278,12 @@
           <label class="checkbox-item"><input type="checkbox" name="teams" value="Data Engineering"> Data Engineering</label>
           <label class="checkbox-item"><input type="checkbox" name="teams" value="Reporting & Analytics"> Reporting &amp; Analytics</label>
           <label class="checkbox-item"><input type="checkbox" name="teams" value="AppDev"> AppDev</label>
-          <label class="checkbox-item"><input type="checkbox" name="teams" value="other-team"> Other — <input type="text" id="teams-other" placeholder="specify…" style="width:150px;display:inline-block;margin-left:8px;padding:4px 8px;font-size:12px"></label>
+          <label class="checkbox-item"><input type="checkbox" name="teams" value="other-team"> Other - <input type="text" id="teams-other" placeholder="specify..." style="width:150px;display:inline-block;margin-left:8px;padding:4px 8px;font-size:12px"></label>
         </div>
       </div>
       <div class="field">
         <label>Primary Initiative(s) Supported This Sprint <span class="req">*</span></label>
-        <textarea id="primary-initiatives" placeholder="List the key initiatives your work this sprint was aligned to…"></textarea>
+        <textarea id="primary-initiatives" placeholder="List the key initiatives your work this sprint was aligned to..."></textarea>
       </div>
     </div>
   </div>
@@ -295,24 +295,24 @@
       <div class="sec-title">Sprint Run-Down</div>
       <div class="sec-badges">
         <span class="badge badge-req">Required</span>
-        <span class="chevron" id="chev-1">▼</span>
+        <span class="chevron" id="chev-1">&#9660;</span>
       </div>
     </div>
     <div class="section-body open" id="body-1">
       <div class="grid3">
-        <div class="metric-card"><div class="mc-label">Story Pts Committed *</div><input type="number" id="pts-c" placeholder="0" oninput="calcPct()"></div>
-        <div class="metric-card"><div class="mc-label">Story Pts Completed *</div><input type="number" id="pts-d" placeholder="0" oninput="calcPct()"></div>
-        <div class="metric-card"><div class="mc-label">Completion %</div><input type="text" id="pts-pct" placeholder="—" readonly style="color:var(--purple)"></div>
+        <div class="metric-card"><div class="mc-label">Story Pts Committed *</div><input type="number" id="pts-c" placeholder="0"></div>
+        <div class="metric-card"><div class="mc-label">Story Pts Completed *</div><input type="number" id="pts-d" placeholder="0"></div>
+        <div class="metric-card"><div class="mc-label">Completion %</div><input type="text" id="pts-pct" placeholder="-" readonly style="color:var(--purple)"></div>
       </div>
       <div class="field">
         <label>Was there carryover from the prior sprint? <span class="req">*</span></label>
         <div class="yn-group">
-          <button type="button" class="yn-btn" onclick="ynToggle(this,'co','yes')">Yes</button>
-          <button type="button" class="yn-btn" onclick="ynToggle(this,'co','no')">No</button>
+          <button type="button" class="yn-btn" data-yn="co" data-val="yes">Yes</button>
+          <button type="button" class="yn-btn" data-yn="co" data-val="no">No</button>
         </div>
         <div class="cond-block" id="cond-co">
           <div class="cond-title">Carryover Details</div>
-          <div class="field"><label>What was carried over? <span class="req">*</span></label><textarea id="co-what" placeholder="List the stories, tickets, or work items that carried over…"></textarea></div>
+          <div class="field"><label>What was carried over? <span class="req">*</span></label><textarea id="co-what" placeholder="List the stories, tickets, or work items that carried over..."></textarea></div>
           <div class="field">
             <label>Primary reason for carryover <span class="req">*</span></label>
             <div class="radio-group">
@@ -320,23 +320,23 @@
               <label class="radio-item"><input type="radio" name="co-reason" value="Scope change"> Scope change</label>
               <label class="radio-item"><input type="radio" name="co-reason" value="Capacity"> Capacity</label>
               <label class="radio-item"><input type="radio" name="co-reason" value="Defect/incident"> Defect / incident</label>
-              <label class="radio-item"><input type="radio" name="co-reason" value="Other"> Other — <input type="text" id="co-reason-other" placeholder="specify…" style="width:150px;display:inline-block;margin-left:8px;padding:4px 8px;font-size:12px"></label>
+              <label class="radio-item"><input type="radio" name="co-reason" value="Other"> Other - <input type="text" id="co-reason-other" placeholder="specify..." style="width:150px;display:inline-block;margin-left:8px;padding:4px 8px;font-size:12px"></label>
             </div>
           </div>
-          <div class="field"><label>Additional context on carryover <span class="req">*</span></label><textarea id="co-why" placeholder="Provide context on why this carried over and any actions being taken…"></textarea></div>
+          <div class="field"><label>Additional context on carryover <span class="req">*</span></label><textarea id="co-why" placeholder="Provide context on why this carried over and any actions being taken..."></textarea></div>
         </div>
       </div>
       <div class="field">
         <label>Was there any "happy carryover"? <span class="req">*</span></label>
         <p class="help-text">Happy carryover = items intentionally deferred or pulled forward that improve delivery health.</p>
         <div class="yn-group">
-          <button type="button" class="yn-btn" onclick="ynToggle(this,'hco','yes')">Yes</button>
-          <button type="button" class="yn-btn" onclick="ynToggle(this,'hco','no')">No</button>
+          <button type="button" class="yn-btn" data-yn="hco" data-val="yes">Yes</button>
+          <button type="button" class="yn-btn" data-yn="hco" data-val="no">No</button>
         </div>
         <div class="cond-block" id="cond-hco">
           <div class="cond-title">Happy Carryover Details</div>
-          <div class="field"><label>What was carried over or pulled forward? <span class="req">*</span></label><textarea id="hco-what" placeholder="Describe what was intentionally moved…"></textarea></div>
-          <div class="field"><label>Why is this a positive outcome? <span class="req">*</span></label><textarea id="hco-why" placeholder="Explain why this shift improves delivery health or sprint outcomes…"></textarea></div>
+          <div class="field"><label>What was carried over or pulled forward? <span class="req">*</span></label><textarea id="hco-what" placeholder="Describe what was intentionally moved..."></textarea></div>
+          <div class="field"><label>Why is this a positive outcome? <span class="req">*</span></label><textarea id="hco-why" placeholder="Explain why this shift improves delivery health or sprint outcomes..."></textarea></div>
         </div>
       </div>
     </div>
@@ -349,13 +349,13 @@
       <div class="sec-title">Prior Sprint Outcomes</div>
       <div class="sec-badges">
         <span class="badge badge-req">Required</span>
-        <span class="chevron" id="chev-2">▼</span>
+        <span class="chevron" id="chev-2">&#9660;</span>
       </div>
     </div>
     <div class="section-body open" id="body-2">
-      <div class="field"><label>Key Work Delivered (1–3 bullets) <span class="req">*</span></label><textarea id="key-delivered" placeholder="• Item 1&#10;• Item 2&#10;• Item 3" style="min-height:90px"></textarea></div>
+      <div class="field"><label>Key Work Delivered (1-3 bullets) <span class="req">*</span></label><textarea id="key-delivered" placeholder="&#8226; Item 1&#10;&#8226; Item 2&#10;&#8226; Item 3" style="min-height:90px"></textarea></div>
       <div class="field"><label>Biggest Win This Sprint <span class="req">*</span></label><p class="help-text">Focus on outcomes and impact, not just tasks completed.</p><textarea id="biggest-win" placeholder="What went really well? What should we celebrate or replicate?"></textarea></div>
-      <div class="field"><label>What does the team need to improve or focus on next sprint? <span class="req">*</span></label><textarea id="improve" placeholder="Be specific — what behavior, process, or gap should the team address?"></textarea></div>
+      <div class="field"><label>What does the team need to improve or focus on next sprint? <span class="req">*</span></label><textarea id="improve" placeholder="Be specific - what behavior, process, or gap should the team address?"></textarea></div>
     </div>
   </div>
 
@@ -366,18 +366,18 @@
       <div class="sec-title">Weekly Execution Breakdown</div>
       <div class="sec-badges">
         <span class="badge badge-req">Required</span>
-        <span class="chevron" id="chev-3">▼</span>
+        <span class="chevron" id="chev-3">&#9660;</span>
       </div>
     </div>
     <div class="section-body open" id="body-3">
       <p style="font-size:12px;color:var(--blue);background:#e6f4fc;border:1px solid rgba(23,151,215,0.2);border-radius:var(--radius);padding:10px 14px;margin-bottom:14px;line-height:1.6;">
-        List delivery-relevant items you actively worked on this week. Limit to 3–5 meaningful items. This is not a task list — focus on items with dependencies, decisions, or forward momentum.
+        List delivery-relevant items you actively worked on this week. Limit to 3-5 meaningful items. This is not a task list - focus on items with dependencies, decisions, or forward momentum.
       </p>
       <div class="work-table">
         <div class="work-table-head"><span>Status</span><span>Work Item Description</span><span>Epic / Initiative / Issue</span><span>Next Steps</span></div>
         <div id="work-rows"></div>
         <div id="block-details"></div>
-        <button type="button" class="add-row-btn" onclick="addWorkRow()">+ Add work item</button>
+        <button type="button" class="add-row-btn" data-action="addWorkRow">+ Add work item</button>
       </div>
     </div>
   </div>
@@ -389,7 +389,7 @@
       <div class="sec-title">SNOW / Incident Signal</div>
       <div class="sec-badges">
         <span class="badge badge-req">Required</span>
-        <span class="chevron" id="chev-4">▼</span>
+        <span class="chevron" id="chev-4">&#9660;</span>
       </div>
     </div>
     <div class="section-body open" id="body-4">
@@ -401,12 +401,12 @@
       <div class="field">
         <label>Were there any P1 or escalation-risk incidents? <span class="req">*</span></label>
         <div class="yn-group">
-          <button type="button" class="yn-btn" onclick="ynToggle(this,'p1','yes')">Yes</button>
-          <button type="button" class="yn-btn" onclick="ynToggle(this,'p1','no')">No</button>
+          <button type="button" class="yn-btn" data-yn="p1" data-val="yes">Yes</button>
+          <button type="button" class="yn-btn" data-yn="p1" data-val="no">No</button>
         </div>
         <div class="cond-block" id="cond-p1">
           <div class="cond-title">P1 / Escalation Details</div>
-          <div class="field"><label>What was the escalation or P1? <span class="req">*</span></label><textarea id="p1-what" placeholder="Describe the incident — what happened, who was impacted, and when it was identified…"></textarea></div>
+          <div class="field"><label>What was the escalation or P1? <span class="req">*</span></label><textarea id="p1-what" placeholder="Describe the incident - what happened, who was impacted, and when it was identified..."></textarea></div>
           <div class="field"><label>Current status <span class="req">*</span></label><textarea id="p1-status" placeholder="Is this resolved, in progress, or still open? What is the current state?"></textarea></div>
           <div class="field"><label>Next steps <span class="req">*</span></label><textarea id="p1-next" placeholder="What actions are in flight? Who owns resolution? Are there any upcoming deadlines?"></textarea></div>
         </div>
@@ -421,14 +421,14 @@
       <div class="sec-title">Health, Dependencies &amp; Escalation</div>
       <div class="sec-badges">
         <span class="badge badge-req">Required</span>
-        <span class="chevron" id="chev-5">▼</span>
+        <span class="chevron" id="chev-5">&#9660;</span>
       </div>
     </div>
     <div class="section-body open" id="body-5">
       <div class="health-defs">
         <div class="health-def green"><div class="health-dot"></div><div class="health-def-text"><div class="hd-title">On Track (Green)</div><div class="hd-desc">Delivery is proceeding as planned. No unresolved blockers. Risks are known and managed. Team is expected to meet sprint and initiative commitments.</div></div></div>
-        <div class="health-def amber"><div class="health-dot"></div><div class="health-def-text"><div class="hd-title">At Risk (Amber)</div><div class="hd-desc">A dependency, blocker, or capacity issue exists that — if unresolved — could impact delivery. TPM awareness and possible action are needed.</div></div></div>
-        <div class="health-def red"><div class="health-dot"></div><div class="health-def-text"><div class="hd-title">Blocked (Red)</div><div class="hd-desc">Delivery is materially impacted. A committed date, release, or initiative is at risk. Escalation is likely required. Do not wait for this form — alert TPM immediately.</div></div></div>
+        <div class="health-def amber"><div class="health-dot"></div><div class="health-def-text"><div class="hd-title">At Risk (Amber)</div><div class="hd-desc">A dependency, blocker, or capacity issue exists that - if unresolved - could impact delivery. TPM awareness and possible action are needed.</div></div></div>
+        <div class="health-def red"><div class="health-dot"></div><div class="health-def-text"><div class="hd-title">Blocked (Red)</div><div class="hd-desc">Delivery is materially impacted. A committed date, release, or initiative is at risk. Escalation is likely required. Do not wait for this form - alert TPM immediately.</div></div></div>
       </div>
       <div class="divider"></div>
       <div class="field">
@@ -443,19 +443,19 @@
             </tr></thead>
             <tbody id="init-rows"></tbody>
           </table>
-          <button type="button" class="add-row-btn" onclick="addInitRow()">+ Add initiative</button>
+          <button type="button" class="add-row-btn" data-action="addInitRow">+ Add initiative</button>
         </div>
       </div>
       <div class="divider"></div>
       <div class="field">
         <label>Key Dependencies, Risks, or Blockers <span class="req">*</span></label>
         <p class="help-text">"None at this time" is acceptable if accurate. Name the owner and resolution path.</p>
-        <textarea id="deps-risks" placeholder="Describe any active dependencies, risks, or blockers and who owns resolution…"></textarea>
+        <textarea id="deps-risks" placeholder="Describe any active dependencies, risks, or blockers and who owns resolution..."></textarea>
       </div>
       <div class="divider"></div>
       <div class="field">
         <label>Help Needed from TPM or Leadership <span class="req">*</span></label>
-        <p class="help-text">Select the type of support needed — you may select more than one.</p>
+        <p class="help-text">Select the type of support needed - you may select more than one.</p>
         <div class="tpm-btns" id="tpm-btns">
           <button type="button" class="tpm-btn" data-cls="sel-action">Action Needed</button>
           <button type="button" class="tpm-btn" data-cls="sel-decision">Decision Needed</button>
@@ -463,7 +463,7 @@
           <button type="button" class="tpm-btn" data-cls="sel-fyi">FYI Only</button>
           <button type="button" class="tpm-btn" data-cls="sel-none">None at This Time</button>
         </div>
-        <textarea id="tpm-detail" placeholder="Describe what you need and by when…" style="margin-top:10px"></textarea>
+        <textarea id="tpm-detail" placeholder="Describe what you need and by when..." style="margin-top:10px"></textarea>
       </div>
     </div>
   </div>
@@ -471,9 +471,9 @@
   <!-- FOOTER -->
   <div class="footer-note">
     <ul>
-      <li>This update feeds directly into leadership reporting — accuracy and honesty are more valuable than positive spin.</li>
+      <li>This update feeds directly into leadership reporting - accuracy and honesty are more valuable than positive spin.</li>
       <li>Health should reflect where the team is heading, not optimism about where it is right now.</li>
-      <li>If you are unsure whether something should be escalated — escalate. It is always better to over-communicate.</li>
+      <li>If you are unsure whether something should be escalated - escalate. It is always better to over-communicate.</li>
     </ul>
   </div>
 
@@ -481,23 +481,23 @@
     <div class="submit-note">
       <strong>Before submitting:</strong> Make sure all required sections are complete. Your submission will be saved and visible to your TPM in the rollup dashboard immediately.
     </div>
-    <button class="submit-btn" onclick="submitForm()" id="submit-btn">Submit Weekly Update</button>
+    <button class="submit-btn" data-action="submitForm" id="submit-btn">Submit Weekly Update</button>
   </div>
 </div>
 
-<div class="toast" id="toast">✓ Update submitted successfully</div>
+<div class="toast" id="toast">OK Update submitted successfully</div>
 
 </div><!-- /tab-form container -->
 </div><!-- /tab-form panel -->
 
-<!-- ═══════════════════════════════════════════
+<!-- ===========================================
      TAB: ANSWER QUALITY GUIDE
-════════════════════════════════════════════ -->
+============================================ -->
 <div class="tab-panel" id="tab-guide">
 <div class="container" style="max-width:780px">
 
   <div class="guide-intro">
-    This guide shows what an <strong>Excellent</strong>, <strong>Good</strong>, and <strong>Weak</strong> answer looks like for every key field. Read this before filling in the form so you understand the standard expected — not just <em>what</em> to fill in, but <em>how</em>.
+    This guide shows what an <strong>Excellent</strong>, <strong>Good</strong>, and <strong>Weak</strong> answer looks like for every key field. Read this before filling in the form so you understand the standard expected - not just <em>what</em> to fill in, but <em>how</em>.
   </div>
 
   <!-- Section A -->
@@ -505,7 +505,7 @@
     <div class="guide-section-header" data-toggle="guide">
       <div class="guide-sec-letter">A</div>
       <div class="guide-sec-title">BA &amp; Sprint Context</div>
-      <span class="guide-sec-chevron open">▼</span>
+      <span class="guide-sec-chevron open">&#9660;</span>
     </div>
     <div class="guide-section-body open">
       <div class="qa-item">
@@ -522,23 +522,23 @@
     <div class="guide-section-header" data-toggle="guide">
       <div class="guide-sec-letter">B</div>
       <div class="guide-sec-title">Sprint Run-Down</div>
-      <span class="guide-sec-chevron">▼</span>
+      <span class="guide-sec-chevron">&#9660;</span>
     </div>
     <div class="guide-section-body">
       <div class="qa-item">
         <div class="qa-field-label">Story points &amp; completion %</div>
-        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">32 committed, 28 completed (88%). The 4-point gap is carryover from COC-312 — blocked on a Dynamics/DOX infrastructure dependency. Not a capacity issue.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">32 committed, 28 completed (88%). The 4-point gap is carryover from COC-312 - blocked on a Dynamics/DOX infrastructure dependency. Not a capacity issue.</div></div>
         <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">28 of 32 points done. Some carryover due to a dependency.</div></div>
         <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">We did pretty well this sprint.</div></div>
       </div>
       <div class="qa-item">
-        <div class="qa-field-label">Carryover — what and why</div>
-        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">COC-312 (API integration for discharge module) carried over. Blocked on Dynamics/DOX infrastructure credential refresh since 4/22. Owner: J. Smith / Infra. Reason: Dependency — not a capacity or scope issue. Actions: TPM awareness requested; credential ticket submitted 4/22.</div></div>
+        <div class="qa-field-label">Carryover - what and why</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">COC-312 (API integration for discharge module) carried over. Blocked on Dynamics/DOX infrastructure credential refresh since 4/22. Owner: J. Smith / Infra. Reason: Dependency - not a capacity or scope issue. Actions: TPM awareness requested; credential ticket submitted 4/22.</div></div>
         <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">The API ticket carried over because we were waiting on infra. Dependency issue.</div></div>
         <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">A few things carried over from last sprint.</div></div>
       </div>
       <div class="qa-item">
-        <div class="qa-field-label">Happy carryover — what moved and why it's positive</div>
+        <div class="qa-field-label">Happy carryover - what moved and why it's positive</div>
         <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">Pulled COC-340 (acceptance criteria for care plan v2) forward into this sprint. The team had capacity after COC-312 stalled, so we front-loaded next sprint's discovery work. This sets up faster delivery in Sprint 43 and avoids a planning bottleneck.</div></div>
         <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">We worked ahead on some next sprint items since we had capacity. Helps us move faster next sprint.</div></div>
         <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">We got some extra things done.</div></div>
@@ -551,24 +551,24 @@
     <div class="guide-section-header" data-toggle="guide">
       <div class="guide-sec-letter">C</div>
       <div class="guide-sec-title">Prior Sprint Outcomes</div>
-      <span class="guide-sec-chevron">▼</span>
+      <span class="guide-sec-chevron">&#9660;</span>
     </div>
     <div class="guide-section-body">
       <div class="qa-item">
         <div class="qa-field-label">Key work delivered</div>
-        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">• COC-289: Finalized and approved acceptance criteria for discharge summary integration (unblocks AppDev build in Sprint 43)<br>• COC-198: UAT completed and signed off for care transitions BI dashboard — first Q2 BI deliverable to reach sign-off<br>• COC-315: Discovery complete for care plan v2; user story backlog groomed with Data Engineering lead</div></div>
-        <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">• Finished acceptance criteria for discharge summary<br>• UAT done for the BI dashboard<br>• Started discovery on care plan v2</div></div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">&#8226; COC-289: Finalized and approved acceptance criteria for discharge summary integration (unblocks AppDev build in Sprint 43)<br>&#8226; COC-198: UAT completed and signed off for care transitions BI dashboard - first Q2 BI deliverable to reach sign-off<br>&#8226; COC-315: Discovery complete for care plan v2; user story backlog groomed with Data Engineering lead</div></div>
+        <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">&#8226; Finished acceptance criteria for discharge summary<br>&#8226; UAT done for the BI dashboard<br>&#8226; Started discovery on care plan v2</div></div>
         <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">Worked on multiple things. Got a lot done this sprint.</div></div>
       </div>
       <div class="qa-item">
-        <div class="qa-field-label">Biggest win — outcome focused</div>
-        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">UAT sign-off on the care transitions dashboard — the first Reporting &amp; Analytics deliverable to reach production-ready status in Q2. Clinical stakeholder satisfaction was high; this directly unblocks the April 30 release and demonstrates the team's ability to deliver end-to-end.</div></div>
+        <div class="qa-field-label">Biggest win - outcome focused</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">UAT sign-off on the care transitions dashboard - the first Reporting &amp; Analytics deliverable to reach production-ready status in Q2. Clinical stakeholder satisfaction was high; this directly unblocks the April 30 release and demonstrates the team's ability to deliver end-to-end.</div></div>
         <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">Got UAT completed and signed off for the dashboard. Stakeholders were happy and we're on track for the April 30 release.</div></div>
         <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">Finished the dashboard work.</div></div>
       </div>
       <div class="qa-item">
         <div class="qa-field-label">What to improve next sprint</div>
-        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">Story sizing accuracy — three tickets were undersized and expanded mid-sprint, contributing to carryover and velocity variance. Recommend a 30-minute pre-sprint sizing review with the AppDev lead before next planning session to align on complexity before commitment.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">Story sizing accuracy - three tickets were undersized and expanded mid-sprint, contributing to carryover and velocity variance. Recommend a 30-minute pre-sprint sizing review with the AppDev lead before next planning session to align on complexity before commitment.</div></div>
         <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">We need to get better at estimating story size before sprint planning. Will plan to review with the dev lead beforehand.</div></div>
         <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">Estimating was a little off this sprint.</div></div>
       </div>
@@ -580,18 +580,18 @@
     <div class="guide-section-header" data-toggle="guide">
       <div class="guide-sec-letter">D</div>
       <div class="guide-sec-title">Weekly Execution Breakdown</div>
-      <span class="guide-sec-chevron">▼</span>
+      <span class="guide-sec-chevron">&#9660;</span>
     </div>
     <div class="guide-section-body">
       <div class="qa-item">
-        <div class="qa-field-label">Work item description — In Progress</div>
+        <div class="qa-field-label">Work item description - In Progress</div>
         <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">Finalized acceptance criteria for COC-318 (Discharge Summary integration) with Data Engineering lead and clinical stakeholder. Three open questions resolved; dev can begin build in Sprint 43. Next: Send AC doc for formal sign-off by Wed.</div></div>
         <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">Worked on acceptance criteria for the discharge summary story with the team. Almost done.</div></div>
         <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">AC work.</div></div>
       </div>
       <div class="qa-item">
-        <div class="qa-field-label">Work item — Blocked</div>
-        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">COC-312 is blocked — requires Dynamics/DOX API credentials from infrastructure team. Owner: J. Smith / Infra. SNOW ticket submitted 4/22 (SNOW-8821), no response received. If not resolved by 4/30 this will reduce sprint velocity by ~13% and push COC-312 to Sprint 43.</div></div>
+        <div class="qa-field-label">Work item - Blocked</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">COC-312 is blocked - requires Dynamics/DOX API credentials from infrastructure team. Owner: J. Smith / Infra. SNOW ticket submitted 4/22 (SNOW-8821), no response received. If not resolved by 4/30 this will reduce sprint velocity by ~13% and push COC-312 to Sprint 43.</div></div>
         <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">Waiting on API credentials from infra (J. Smith). Ticket submitted 4/22. This could slow us down if not resolved soon.</div></div>
         <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">Still blocked on this one.</div></div>
       </div>
@@ -603,13 +603,13 @@
     <div class="guide-section-header" data-toggle="guide">
       <div class="guide-sec-letter">E</div>
       <div class="guide-sec-title">SNOW / Incident Signal</div>
-      <span class="guide-sec-chevron">▼</span>
+      <span class="guide-sec-chevron">&#9660;</span>
     </div>
     <div class="guide-section-body">
       <div class="qa-item">
-        <div class="qa-field-label">P1 / escalation — all three fields</div>
-        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text"><strong>What:</strong> P1 opened 4/24 — care plan module unavailable in prod for ~2 hrs. Root cause: config drift post AppDev deploy.<br><strong>Status:</strong> Resolved 4/24 EOD. Fix validated by QA 4/25. No ongoing patient impact.<br><strong>Next steps:</strong> Post-mortem scheduled 5/1. Tech Enablement lead reviewing config change process to prevent recurrence.</div></div>
-        <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">There was a P1 on 4/24 — care plan was down for about 2 hours. Root cause was a config issue after a deploy. Fixed same day. Post-mortem next week.</div></div>
+        <div class="qa-field-label">P1 / escalation - all three fields</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text"><strong>What:</strong> P1 opened 4/24 - care plan module unavailable in prod for ~2 hrs. Root cause: config drift post AppDev deploy.<br><strong>Status:</strong> Resolved 4/24 EOD. Fix validated by QA 4/25. No ongoing patient impact.<br><strong>Next steps:</strong> Post-mortem scheduled 5/1. Tech Enablement lead reviewing config change process to prevent recurrence.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">There was a P1 on 4/24 - care plan was down for about 2 hours. Root cause was a config issue after a deploy. Fixed same day. Post-mortem next week.</div></div>
         <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">P1 happened, resolved now.</div></div>
       </div>
     </div>
@@ -620,29 +620,29 @@
     <div class="guide-section-header" data-toggle="guide">
       <div class="guide-sec-letter">F</div>
       <div class="guide-sec-title">Health, Dependencies &amp; Escalation</div>
-      <span class="guide-sec-chevron">▼</span>
+      <span class="guide-sec-chevron">&#9660;</span>
     </div>
     <div class="guide-section-body">
       <div class="qa-item">
-        <div class="qa-field-label">Initiative health — Green (On Track)</div>
+        <div class="qa-field-label">Initiative health - Green (On Track)</div>
         <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">COC-198 BI Dashboard: On track. Final data validation with Data Engineering this week; pre-release smoke test scheduled for 4/29. No risks or blockers. Planned for next week: release execution and hypercare monitoring.</div></div>
         <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">BI dashboard is on track. Validating data next week then releasing.</div></div>
         <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">Green. On track.</div></div>
       </div>
       <div class="qa-item">
-        <div class="qa-field-label">Initiative health — Amber (At Risk)</div>
-        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text"><strong>At risk:</strong> COC-221 Patient Portal — API dependency on Dynamics/DOX unresolved since 4/22 (owner: J. Smith / Infra) blocks 2 stories (4 pts). <strong>To get green:</strong> Infra credentials needed by 4/30. If not received by Wed, sprint commitments will need to be replanned. <strong>Next week:</strong> Replan if credentials not received; escalate through TPM.</div></div>
+        <div class="qa-field-label">Initiative health - Amber (At Risk)</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text"><strong>At risk:</strong> COC-221 Patient Portal - API dependency on Dynamics/DOX unresolved since 4/22 (owner: J. Smith / Infra) blocks 2 stories (4 pts). <strong>To get green:</strong> Infra credentials needed by 4/30. If not received by Wed, sprint commitments will need to be replanned. <strong>Next week:</strong> Replan if credentials not received; escalate through TPM.</div></div>
         <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">Patient portal at risk because of an API dependency on infra. Need credentials from J. Smith by 4/30 to get back on track.</div></div>
         <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">Amber. Waiting on infra.</div></div>
       </div>
       <div class="qa-item">
-        <div class="qa-field-label">Initiative health — Red (Blocked)</div>
-        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text"><strong>Blocked:</strong> COC-305 Discharge Summary — Data Engineering pipeline failures blocking UAT entry since 4/21. Delivery impact: April 30 release must move to May 7 minimum. <strong>To unblock:</strong> DE team lead (R. Nguyen) must prioritize pipeline fix — TPM escalation requested today. Do not wait for Thursday update.</div></div>
+        <div class="qa-field-label">Initiative health - Red (Blocked)</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text"><strong>Blocked:</strong> COC-305 Discharge Summary - Data Engineering pipeline failures blocking UAT entry since 4/21. Delivery impact: April 30 release must move to May 7 minimum. <strong>To unblock:</strong> DE team lead (R. Nguyen) must prioritize pipeline fix - TPM escalation requested today. Do not wait for Thursday update.</div></div>
         <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">Discharge summary is blocked. Data Engineering pipeline issue is preventing UAT from starting. Needs escalation.</div></div>
         <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">Red. Blocked on a data issue.</div></div>
       </div>
       <div class="qa-item">
-        <div class="qa-field-label">Help needed from TPM — Action Needed</div>
+        <div class="qa-field-label">Help needed from TPM - Action Needed</div>
         <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">Action Needed + Help to Unblock. Please escalate to R. Nguyen's manager regarding the Data Engineering pipeline fix (COC-305 / SNOW-8901). The team has raised it twice with no response. This is blocking UAT and will force the April 30 release to move if not resolved by 4/30 EOD. I can provide full impact summary if needed for the escalation.</div></div>
         <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">Need you to escalate to the DE team lead to fix the pipeline. It's blocking UAT for COC-305.</div></div>
         <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">Need help with a blocker.</div></div>
@@ -653,18 +653,18 @@
 </div>
 </div><!-- /tab-guide -->
 
-<!-- ═══════════════════════════════════════════
+<!-- ===========================================
      TAB: REPORTING CHECKLIST
-════════════════════════════════════════════ -->
+============================================ -->
 <div class="tab-panel" id="tab-checklist">
 <div class="container" style="max-width:780px">
 
   <div class="checklist-intro">
-    <div class="checklist-intro-icon">✓</div>
-    <p>Use this checklist every Thursday before submitting your update. Check off each item to confirm it has been completed to the expected standard — not just filled in, but answered with the quality the TPM needs to report up. Check items off as you go; they'll stay checked until you reset.</p>
+    <div class="checklist-intro-icon">OK</div>
+    <p>Use this checklist every Thursday before submitting your update. Check off each item to confirm it has been completed to the expected standard - not just filled in, but answered with the quality the TPM needs to report up. Check items off as you go; they'll stay checked until you reset.</p>
   </div>
 
-  <button type="button" class="reset-btn" onclick="resetChecklist()">↺ Reset all checkboxes</button>
+  <button type="button" class="reset-btn" data-action="resetChecklist">&#8634; Reset all checkboxes</button>
 
   <!-- Section A -->
   <div class="cl-section">
@@ -674,12 +674,12 @@
       <span class="cl-sec-badge cl-req">Required</span>
     </div>
     <ul class="cl-list">
-      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">BA name entered — full name, not initials</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">BA name entered - full name, not initials</div></div></li>
       <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Week ending date selected</div></div></li>
-      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Sprint number entered</div><div class="cl-item-sub">e.g. "Sprint 42" — not just a number</div></div></li>
-      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Sprint dates entered</div><div class="cl-item-sub">e.g. "Apr 21 – May 2"</div></div></li>
-      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">At least one engineering team checked</div><div class="cl-item-sub">Dynamics/DOX/Tech Enablement · Data Engineering · Reporting &amp; Analytics · AppDev · Other</div></div></li>
-      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Primary initiative(s) named — not just a team name</div><div class="cl-item-sub">Include the initiative name and epic ID if available</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Sprint number entered</div><div class="cl-item-sub">e.g. "Sprint 42" - not just a number</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Sprint dates entered</div><div class="cl-item-sub">e.g. "Apr 21 - May 2"</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">At least one engineering team checked</div><div class="cl-item-sub">Dynamics/DOX/Tech Enablement &middot; Data Engineering &middot; Reporting &amp; Analytics &middot; AppDev &middot; Other</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Primary initiative(s) named - not just a team name</div><div class="cl-item-sub">Include the initiative name and epic ID if available</div></div></li>
     </ul>
   </div>
 
@@ -691,8 +691,8 @@
       <span class="cl-sec-badge cl-req">Required</span>
     </div>
     <ul class="cl-list">
-      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Story points committed entered — zero is valid, blank is not</div></div></li>
-      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Story points completed entered — zero is valid, blank is not</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Story points committed entered - zero is valid, blank is not</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Story points completed entered - zero is valid, blank is not</div></div></li>
       <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Carryover yes/no answered</div><div class="cl-item-sub">If Yes: what carried over is named, reason category selected, and context explains why it happened</div></div></li>
       <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Happy carryover yes/no answered</div><div class="cl-item-sub">If Yes: what moved and why it is a positive outcome are both explained specifically</div></div></li>
     </ul>
@@ -706,9 +706,9 @@
       <span class="cl-sec-badge cl-req">Required</span>
     </div>
     <ul class="cl-list">
-      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Key work delivered — 1 to 3 bullets, deliverables not activities</div><div class="cl-item-sub">Bad: "worked on AC" · Good: "Finalized and approved AC for COC-289 — unblocks build in Sprint 43"</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Key work delivered - 1 to 3 bullets, deliverables not activities</div><div class="cl-item-sub">Bad: "worked on AC" &middot; Good: "Finalized and approved AC for COC-289 - unblocks build in Sprint 43"</div></div></li>
       <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Biggest win is outcome-focused, not task-focused</div><div class="cl-item-sub">Describe the impact and what it enables, not just what was completed</div></div></li>
-      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Improvement focus is specific — names the behavior, process, or gap</div><div class="cl-item-sub">Bad: "estimating" · Good: "Story sizing — three tickets were undersized; recommend pre-sprint sizing review with dev lead"</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Improvement focus is specific - names the behavior, process, or gap</div><div class="cl-item-sub">Bad: "estimating" &middot; Good: "Story sizing - three tickets were undersized; recommend pre-sprint sizing review with dev lead"</div></div></li>
     </ul>
   </div>
 
@@ -720,10 +720,10 @@
       <span class="cl-sec-badge cl-req">Required</span>
     </div>
     <ul class="cl-list">
-      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">3 to 5 meaningful work items listed — not a task list</div><div class="cl-item-sub">Focus on items with decisions, dependencies, or forward momentum</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">3 to 5 meaningful work items listed - not a task list</div><div class="cl-item-sub">Focus on items with decisions, dependencies, or forward momentum</div></div></li>
       <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Each item has a status selected</div></div></li>
       <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Each item is linked to an epic, initiative, or issue</div></div></li>
-      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Each item has a next step — even Completed items</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Each item has a next step - even Completed items</div></div></li>
       <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Blocked items include: what is blocking, who owns it, and delivery impact</div><div class="cl-item-sub">A blocked item with no owner or impact stated is not actionable</div></div></li>
     </ul>
   </div>
@@ -736,9 +736,9 @@
       <span class="cl-sec-badge cl-req">Required</span>
     </div>
     <ul class="cl-list">
-      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">SNOW tickets opened entered — zero is valid, blank is not</div></div></li>
-      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">SNOW tickets closed entered — zero is valid, blank is not</div></div></li>
-      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">P1 / escalation yes/no answered</div><div class="cl-item-sub">If Yes: all three fields completed — what happened, current status, and next steps with owners</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">SNOW tickets opened entered - zero is valid, blank is not</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">SNOW tickets closed entered - zero is valid, blank is not</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">P1 / escalation yes/no answered</div><div class="cl-item-sub">If Yes: all three fields completed - what happened, current status, and next steps with owners</div></div></li>
     </ul>
   </div>
 
@@ -750,19 +750,19 @@
       <span class="cl-sec-badge cl-req">Required</span>
     </div>
     <ul class="cl-list">
-      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">At least one initiative rated in the health table</div><div class="cl-item-sub">Use the definitions — health reflects trajectory, not current optimism</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">At least one initiative rated in the health table</div><div class="cl-item-sub">Use the definitions - health reflects trajectory, not current optimism</div></div></li>
       <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Green initiatives: planned next week is stated (or "no updates")</div></div></li>
-      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Amber initiatives: all three fields complete — what is at risk, path to green with owner, and next week plan</div></div></li>
-      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Red initiatives: what is blocked with delivery impact, and unblock owner and deadline stated</div><div class="cl-item-sub">Red = do not wait for Thursday — alert TPM immediately</div></div></li>
-      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Dependencies, risks, or blockers field completed — "None at this time" is acceptable if accurate</div><div class="cl-item-sub">Name the owner and resolution path for anything active</div></div></li>
-      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">TPM help type selected — at least one button active</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Amber initiatives: all three fields complete - what is at risk, path to green with owner, and next week plan</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Red initiatives: what is blocked with delivery impact, and unblock owner and deadline stated</div><div class="cl-item-sub">Red = do not wait for Thursday - alert TPM immediately</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Dependencies, risks, or blockers field completed - "None at this time" is acceptable if accurate</div><div class="cl-item-sub">Name the owner and resolution path for anything active</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">TPM help type selected - at least one button active</div></div></li>
       <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">TPM detail field completed with specifics of what is needed and by when</div><div class="cl-item-sub">"None at this time" is acceptable if you selected that button</div></div></li>
     </ul>
   </div>
 
   <!-- Ad hoc card -->
   <div class="adhoc-card">
-    <div class="adhoc-card-title">⚠ When to send an ad hoc update — do not wait for Thursday</div>
+    <div class="adhoc-card-title">&#9888; When to send an ad hoc update - do not wait for Thursday</div>
     <div class="adhoc-item">A blocker puts a committed release date or sprint commitment at immediate risk</div>
     <div class="adhoc-item">A P1 or escalation-risk incident is opened or remains unresolved</div>
     <div class="adhoc-item">UAT cannot be completed before a planned release window</div>
@@ -770,7 +770,7 @@
     <div class="adhoc-item">An issue is likely to surface in a leadership or steering committee meeting</div>
     <div class="adhoc-item">A scope change affects multiple teams or more than one sprint</div>
     <div class="adhoc-item">A key stakeholder has been or is about to be affected and has not been informed</div>
-    <div class="adhoc-item">When in doubt — escalate. Over-communication is always safer than silence.</div>
+    <div class="adhoc-item">When in doubt - escalate. Over-communication is always safer than silence.</div>
   </div>
 
 </div>
@@ -780,11 +780,11 @@
 (function() {
 'use strict';
 
-// ─── State ───────────────────────────────────────────────
+// ---
 var workRowCount = 0;
 var initRowCount = 0;
 
-// ─── Tab switching ───────────────────────────────────────
+// ---
 function switchTab(tabId, btn) {
   document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
   document.querySelectorAll('.tab-nav-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -793,7 +793,7 @@ function switchTab(tabId, btn) {
   if (btn) btn.classList.add('active');
 }
 
-// ─── Section accordion ───────────────────────────────────
+// ---
 function toggleSection(idx) {
   var body = document.getElementById('body-' + idx);
   var chev = document.getElementById('chev-' + idx);
@@ -803,7 +803,7 @@ function toggleSection(idx) {
   if (chev) chev.classList.toggle('open', !isOpen);
 }
 
-// ─── Guide accordion ─────────────────────────────────────
+// ---
 function toggleGuide(header) {
   var body = header.nextElementSibling;
   var chev = header.querySelector('.guide-sec-chevron');
@@ -813,7 +813,7 @@ function toggleGuide(header) {
   if (chev) chev.classList.toggle('open', !isOpen);
 }
 
-// ─── Yes/No toggle ───────────────────────────────────────
+// ---
 function ynToggle(btn, key, val) {
   var group = btn.closest('.yn-group');
   if (group) {
@@ -826,14 +826,14 @@ function ynToggle(btn, key, val) {
   if (cond) cond.classList.toggle('show', val === 'yes');
 }
 
-// ─── Completion % ────────────────────────────────────────
+// ---
 function calcPct() {
   var c = parseFloat(document.getElementById('pts-c').value) || 0;
   var d = parseFloat(document.getElementById('pts-d').value) || 0;
-  document.getElementById('pts-pct').value = c > 0 ? Math.round(d / c * 100) + '%' : '—';
+  document.getElementById('pts-pct').value = c > 0 ? Math.round(d / c * 100) + '%' : '-';
 }
 
-// ─── Work rows ───────────────────────────────────────────
+// ---
 function addWorkRow() {
   var idx = workRowCount++;
   var container = document.getElementById('work-rows');
@@ -847,15 +847,15 @@ function addWorkRow() {
   sel.addEventListener('change', function() { checkBlocked(this, idx); });
   var inp1 = document.createElement('input');
   inp1.type = 'text'; inp1.id = 'work-desc-' + idx;
-  inp1.placeholder = 'Describe the work item…';
+  inp1.placeholder = 'Describe the work item...';
   inp1.style.cssText = 'font-size:12px;padding:5px 8px';
   var inp2 = document.createElement('input');
   inp2.type = 'text'; inp2.id = 'work-epic-' + idx;
-  inp2.placeholder = 'Epic / initiative…';
+  inp2.placeholder = 'Epic / initiative...';
   inp2.style.cssText = 'font-size:12px;padding:5px 8px';
   var inp3 = document.createElement('input');
   inp3.type = 'text'; inp3.id = 'work-next-' + idx;
-  inp3.placeholder = 'What’s next…';
+  inp3.placeholder = "What's next...";
   inp3.style.cssText = 'font-size:12px;padding:5px 8px';
   row.appendChild(sel);
   row.appendChild(inp1);
@@ -873,10 +873,10 @@ function checkBlocked(sel, idx) {
       d.id = 'block-' + idx;
       d.className = 'block-detail';
       var lbl = document.createElement('label');
-      lbl.textContent = 'Blocker for row ' + (idx + 1) + ' — what is blocking progress?';
+      lbl.textContent = 'Blocker for row ' + (idx + 1) + ' - what is blocking progress?';
       var ta = document.createElement('textarea');
       ta.id = 'work-block-' + idx;
-      ta.placeholder = 'Describe the blocker and who owns resolution…';
+      ta.placeholder = 'Describe the blocker and who owns resolution...';
       d.appendChild(lbl);
       d.appendChild(ta);
       bf.appendChild(d);
@@ -884,7 +884,7 @@ function checkBlocked(sel, idx) {
   }
 }
 
-// ─── Initiative rows ─────────────────────────────────────
+// ---
 function addInitRow() {
   var idx = initRowCount++;
   var tbody = document.getElementById('init-rows');
@@ -895,7 +895,7 @@ function addInitRow() {
   var nameInput = document.createElement('input');
   nameInput.type = 'text';
   nameInput.id = 'init-name-' + idx;
-  nameInput.placeholder = 'Initiative name…';
+  nameInput.placeholder = 'Initiative name...';
   td1.appendChild(nameInput);
 
   var td2 = document.createElement('td');
@@ -932,7 +932,7 @@ function initHealth(sel, idx) {
   } else if (v === 'amber') {
     var lbl = document.createElement('div');
     lbl.style.cssText = 'color:#7a5c00;font-size:10px;font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px';
-    lbl.textContent = 'At Risk — complete all three fields';
+    lbl.textContent = 'At Risk - complete all three fields';
     var ta1 = document.createElement('textarea');
     ta1.id = 'init-a-risk-' + idx; ta1.style.cssText = 'font-size:12px;border-color:rgba(255,197,50,0.6);min-height:40px;margin-bottom:6px'; ta1.placeholder = 'What is at risk?';
     var ta2 = document.createElement('textarea');
@@ -943,7 +943,7 @@ function initHealth(sel, idx) {
   } else if (v === 'red') {
     var lbl = document.createElement('div');
     lbl.style.cssText = 'color:#E24301;font-size:10px;font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px';
-    lbl.textContent = 'Blocked — alert TPM immediately';
+    lbl.textContent = 'Blocked - alert TPM immediately';
     var ta1 = document.createElement('textarea');
     ta1.id = 'init-r-block-' + idx; ta1.style.cssText = 'font-size:12px;border-color:rgba(226,67,1,0.4);min-height:40px;margin-bottom:6px'; ta1.placeholder = 'What is blocked? Delivery impact?';
     var ta2 = document.createElement('textarea');
@@ -954,7 +954,7 @@ function initHealth(sel, idx) {
   }
 }
 
-// ─── TPM buttons ─────────────────────────────────────────
+// ---
 function tpmToggle(btn, cls) {
   var allCls = ['sel-action','sel-decision','sel-unblock','sel-fyi','sel-none'];
   if (cls === 'sel-none') {
@@ -969,7 +969,7 @@ function tpmToggle(btn, cls) {
   }
 }
 
-// ─── Checklist ───────────────────────────────────────────
+// ---
 function resetChecklist() {
   document.querySelectorAll('.cl-item').forEach(function(item) {
     var cb = item.querySelector('input[type=checkbox]');
@@ -978,7 +978,7 @@ function resetChecklist() {
   });
 }
 
-// ─── Collect form data ────────────────────────────────────
+// ---
 function collectFormData() {
   var teams = Array.from(document.querySelectorAll('input[name="teams"]:checked')).map(function(c) { return c.value; });
   var otherTeam = document.getElementById('teams-other').value;
@@ -1055,8 +1055,8 @@ function collectFormData() {
   };
 }
 
-// ─── Submit ───────────────────────────────────────────────
-var FLOW_URL = 'YOUR_POWER_AUTOMATE_URL_HERE';
+// ---
+var FLOW_URL = 'https://defaultb110eddf23ae457ca6f3734d592b28.47.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/526d041d37ba43b98e9b894450bc6716/triggers/manual/paths/invoke?api-version=1';
 
 function submitForm() {
   var btn = document.getElementById('submit-btn');
@@ -1078,7 +1078,7 @@ function submitForm() {
   }
 
   btn.disabled = true;
-  btn.textContent = 'Submitting…';
+  btn.textContent = 'Submitting...';
 
   var data = collectFormData();
 
@@ -1092,7 +1092,7 @@ function submitForm() {
     return response;
   })
   .then(function() {
-    btn.textContent = '✓ Submitted';
+    btn.textContent = 'OK Submitted';
     var toast = document.getElementById('toast');
     if (toast) { toast.style.display = 'block'; setTimeout(function() { toast.style.display = 'none'; }, 5000); }
     document.querySelectorAll('.progress-step').forEach(function(s) { s.classList.add('done'); });
@@ -1106,7 +1106,7 @@ Error: ' + err.message);
   });
 }
 
-// ─── Event listeners (attached on DOM ready) ─────────────
+// ---
 document.addEventListener('DOMContentLoaded', function() {
 
   // Tab navigation
@@ -1150,6 +1150,33 @@ document.addEventListener('DOMContentLoaded', function() {
       if (cls) tpmToggle(this, cls);
     });
   });
+
+  // Yes/No buttons via data attributes
+  document.querySelectorAll('[data-yn]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var key = this.getAttribute('data-yn');
+      var val = this.getAttribute('data-val');
+      ynToggle(this, key, val);
+    });
+  });
+
+  // Action buttons via data attributes
+  document.querySelectorAll('[data-action]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var action = this.getAttribute('data-action');
+      if (action === 'addWorkRow') addWorkRow();
+      else if (action === 'addInitRow') addInitRow();
+      else if (action === 'submitForm') submitForm();
+      else if (action === 'resetChecklist') resetChecklist();
+      else if (action === 'calcPct') calcPct();
+    });
+  });
+
+  // oninput for calcPct on metric cards
+  var ptsC = document.getElementById('pts-c');
+  var ptsD = document.getElementById('pts-d');
+  if (ptsC) ptsC.addEventListener('input', calcPct);
+  if (ptsD) ptsD.addEventListener('input', calcPct);
 
   // Init default rows
   addWorkRow();
