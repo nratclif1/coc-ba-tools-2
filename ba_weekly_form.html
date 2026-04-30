@@ -777,134 +777,228 @@
 </div><!-- /tab-checklist -->
 
 <script>
-(function() {
-'use strict';
+var workCount = 0;
+var initCount = 0;
 
-// ---
-var workRowCount = 0;
-var initRowCount = 0;
-
-// ---
 function switchTab(tabId, btn) {
-  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
-  document.querySelectorAll('.tab-nav-btn').forEach(function(b) { b.classList.remove('active'); });
-  var panel = document.getElementById('tab-' + tabId);
-  if (panel) panel.classList.add('active');
+  var panels = document.querySelectorAll('.tab-panel');
+  var btns = document.querySelectorAll('.tab-nav-btn');
+  for (var i = 0; i < panels.length; i++) panels[i].classList.remove('active');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  var p = document.getElementById('tab-' + tabId);
+  if (p) p.classList.add('active');
   if (btn) btn.classList.add('active');
 }
 
-// ---
 function toggleSection(idx) {
   var body = document.getElementById('body-' + idx);
   var chev = document.getElementById('chev-' + idx);
   if (!body) return;
-  var isOpen = body.classList.contains('open');
-  body.classList.toggle('open', !isOpen);
-  if (chev) chev.classList.toggle('open', !isOpen);
+  if (body.classList.contains('open')) {
+    body.classList.remove('open');
+    if (chev) chev.classList.remove('open');
+  } else {
+    body.classList.add('open');
+    if (chev) chev.classList.add('open');
+  }
 }
 
-// ---
 function toggleGuide(header) {
   var body = header.nextElementSibling;
   var chev = header.querySelector('.guide-sec-chevron');
   if (!body) return;
-  var isOpen = body.classList.contains('open');
-  body.classList.toggle('open', !isOpen);
-  if (chev) chev.classList.toggle('open', !isOpen);
+  if (body.classList.contains('open')) {
+    body.classList.remove('open');
+    if (chev) chev.classList.remove('open');
+  } else {
+    body.classList.add('open');
+    if (chev) chev.classList.add('open');
+  }
 }
 
-// ---
 function ynToggle(btn, key, val) {
-  var group = btn.closest('.yn-group');
-  if (group) {
-    group.querySelectorAll('.yn-btn').forEach(function(b) {
-      b.classList.remove('yes', 'no');
-    });
+  var group = btn.parentNode;
+  var siblings = group.querySelectorAll('.yn-btn');
+  for (var i = 0; i < siblings.length; i++) {
+    siblings[i].classList.remove('yes');
+    siblings[i].classList.remove('no');
   }
   btn.classList.add(val === 'yes' ? 'yes' : 'no');
   var cond = document.getElementById('cond-' + key);
-  if (cond) cond.classList.toggle('show', val === 'yes');
+  if (cond) {
+    if (val === 'yes') {
+      cond.classList.add('show');
+    } else {
+      cond.classList.remove('show');
+    }
+  }
 }
 
-// ---
 function calcPct() {
   var c = parseFloat(document.getElementById('pts-c').value) || 0;
   var d = parseFloat(document.getElementById('pts-d').value) || 0;
   document.getElementById('pts-pct').value = c > 0 ? Math.round(d / c * 100) + '%' : '-';
 }
 
-// ---
 function addWorkRow() {
-  var idx = workRowCount++;
+  var idx = workCount++;
   var container = document.getElementById('work-rows');
+  if (!container) return;
   var row = document.createElement('div');
   row.className = 'work-row';
-  row.setAttribute('data-idx', idx);
+  row.setAttribute('data-idx', String(idx));
+
   var sel = document.createElement('select');
   sel.id = 'work-status-' + idx;
-  sel.style.cssText = 'font-size:12px;padding:5px 8px';
+  sel.style.fontSize = '12px';
+  sel.style.padding = '5px 8px';
   sel.innerHTML = '<option value="">Status</option><option>Not Started</option><option>In Progress</option><option>Completed</option><option>Blocked</option>';
-  sel.addEventListener('change', function() { checkBlocked(this, idx); });
-  var inp1 = document.createElement('input');
-  inp1.type = 'text'; inp1.id = 'work-desc-' + idx;
-  inp1.placeholder = 'Describe the work item...';
-  inp1.style.cssText = 'font-size:12px;padding:5px 8px';
-  var inp2 = document.createElement('input');
-  inp2.type = 'text'; inp2.id = 'work-epic-' + idx;
-  inp2.placeholder = 'Epic / initiative...';
-  inp2.style.cssText = 'font-size:12px;padding:5px 8px';
-  var inp3 = document.createElement('input');
-  inp3.type = 'text'; inp3.id = 'work-next-' + idx;
-  inp3.placeholder = "What's next...";
-  inp3.style.cssText = 'font-size:12px;padding:5px 8px';
+  sel.setAttribute('data-blockidx', String(idx));
+  sel.addEventListener('change', function() {
+    var bidx = this.getAttribute('data-blockidx');
+    if (this.value === 'Blocked' && !document.getElementById('block-' + bidx)) {
+      var bf = document.getElementById('block-details');
+      var d = document.createElement('div');
+      d.id = 'block-' + bidx;
+      d.className = 'block-detail';
+      var lbl = document.createElement('label');
+      lbl.textContent = 'Blocker - what is blocking progress?';
+      var ta = document.createElement('textarea');
+      ta.id = 'work-block-' + bidx;
+      ta.placeholder = 'Describe the blocker and who owns resolution';
+      d.appendChild(lbl);
+      d.appendChild(ta);
+      if (bf) bf.appendChild(d);
+    }
+  });
+
+  var i1 = document.createElement('input');
+  i1.type = 'text';
+  i1.id = 'work-desc-' + idx;
+  i1.placeholder = 'Describe the work item';
+  i1.style.fontSize = '12px';
+  i1.style.padding = '5px 8px';
+
+  var i2 = document.createElement('input');
+  i2.type = 'text';
+  i2.id = 'work-epic-' + idx;
+  i2.placeholder = 'Epic / initiative';
+  i2.style.fontSize = '12px';
+  i2.style.padding = '5px 8px';
+
+  var i3 = document.createElement('input');
+  i3.type = 'text';
+  i3.id = 'work-next-' + idx;
+  i3.placeholder = 'Next steps';
+  i3.style.fontSize = '12px';
+  i3.style.padding = '5px 8px';
+
   row.appendChild(sel);
-  row.appendChild(inp1);
-  row.appendChild(inp2);
-  row.appendChild(inp3);
+  row.appendChild(i1);
+  row.appendChild(i2);
+  row.appendChild(i3);
   container.appendChild(row);
 }
 
-function checkBlocked(sel, idx) {
-  if (sel.value === 'Blocked') {
-    var existing = document.getElementById('block-' + idx);
-    if (!existing) {
-      var bf = document.getElementById('block-details');
-      var d = document.createElement('div');
-      d.id = 'block-' + idx;
-      d.className = 'block-detail';
-      var lbl = document.createElement('label');
-      lbl.textContent = 'Blocker for row ' + (idx + 1) + ' - what is blocking progress?';
-      var ta = document.createElement('textarea');
-      ta.id = 'work-block-' + idx;
-      ta.placeholder = 'Describe the blocker and who owns resolution...';
-      d.appendChild(lbl);
-      d.appendChild(ta);
-      bf.appendChild(d);
-    }
-  }
-}
-
-// ---
 function addInitRow() {
-  var idx = initRowCount++;
+  var idx = initCount++;
   var tbody = document.getElementById('init-rows');
+  if (!tbody) return;
   var tr = document.createElement('tr');
   tr.id = 'init-row-' + idx;
 
   var td1 = document.createElement('td');
-  var nameInput = document.createElement('input');
-  nameInput.type = 'text';
-  nameInput.id = 'init-name-' + idx;
-  nameInput.placeholder = 'Initiative name...';
-  td1.appendChild(nameInput);
+  var ni = document.createElement('input');
+  ni.type = 'text';
+  ni.id = 'init-name-' + idx;
+  ni.placeholder = 'Initiative name';
+  td1.appendChild(ni);
 
   var td2 = document.createElement('td');
-  var healthSel = document.createElement('select');
-  healthSel.id = 'init-health-' + idx;
-  healthSel.style.cssText = 'font-size:12px;padding:5px 8px;width:100%';
-  healthSel.innerHTML = '<option value="">Select</option><option value="green">Green</option><option value="amber">Amber</option><option value="red">Red</option>';
-  healthSel.addEventListener('change', function() { initHealth(this, idx); });
-  td2.appendChild(healthSel);
+  var hs = document.createElement('select');
+  hs.id = 'init-health-' + idx;
+  hs.style.fontSize = '12px';
+  hs.style.padding = '5px 8px';
+  hs.style.width = '100%';
+  hs.innerHTML = '<option value="">Select</option><option value="green">Green</option><option value="amber">Amber</option><option value="red">Red</option>';
+  hs.setAttribute('data-hidx', String(idx));
+  hs.addEventListener('change', function() {
+    var hidx = this.getAttribute('data-hidx');
+    var cell = document.getElementById('init-detail-' + hidx);
+    if (!cell) return;
+    var v = this.value;
+    cell.innerHTML = '';
+    if (v === 'green') {
+      var lbl = document.createElement('div');
+      lbl.style.color = '#007F91';
+      lbl.style.fontSize = '10px';
+      lbl.style.fontWeight = '700';
+      lbl.style.marginBottom = '4px';
+      lbl.style.textTransform = 'uppercase';
+      lbl.textContent = 'On Track';
+      var ta = document.createElement('textarea');
+      ta.id = 'init-g-next-' + hidx;
+      ta.style.fontSize = '12px';
+      ta.style.minHeight = '46px';
+      ta.placeholder = 'What is planned for next week?';
+      cell.appendChild(lbl);
+      cell.appendChild(ta);
+    } else if (v === 'amber') {
+      var lbl = document.createElement('div');
+      lbl.style.color = '#7a5c00';
+      lbl.style.fontSize = '10px';
+      lbl.style.fontWeight = '700';
+      lbl.style.marginBottom = '6px';
+      lbl.style.textTransform = 'uppercase';
+      lbl.textContent = 'At Risk - complete all three fields';
+      var ta1 = document.createElement('textarea');
+      ta1.id = 'init-a-risk-' + hidx;
+      ta1.style.fontSize = '12px';
+      ta1.style.minHeight = '40px';
+      ta1.style.marginBottom = '6px';
+      ta1.placeholder = 'What is at risk?';
+      var ta2 = document.createElement('textarea');
+      ta2.id = 'init-a-green-' + hidx;
+      ta2.style.fontSize = '12px';
+      ta2.style.minHeight = '40px';
+      ta2.style.marginBottom = '6px';
+      ta2.placeholder = 'What is needed to get back to green?';
+      var ta3 = document.createElement('textarea');
+      ta3.id = 'init-a-next-' + hidx;
+      ta3.style.fontSize = '12px';
+      ta3.style.minHeight = '40px';
+      ta3.placeholder = 'What is planned for next week?';
+      cell.appendChild(lbl);
+      cell.appendChild(ta1);
+      cell.appendChild(ta2);
+      cell.appendChild(ta3);
+    } else if (v === 'red') {
+      var lbl = document.createElement('div');
+      lbl.style.color = '#E24301';
+      lbl.style.fontSize = '10px';
+      lbl.style.fontWeight = '700';
+      lbl.style.marginBottom = '6px';
+      lbl.style.textTransform = 'uppercase';
+      lbl.textContent = 'Blocked - alert TPM immediately';
+      var ta1 = document.createElement('textarea');
+      ta1.id = 'init-r-block-' + hidx;
+      ta1.style.fontSize = '12px';
+      ta1.style.minHeight = '40px';
+      ta1.style.marginBottom = '6px';
+      ta1.placeholder = 'What is blocked? Delivery impact?';
+      var ta2 = document.createElement('textarea');
+      ta2.id = 'init-r-unblock-' + hidx;
+      ta2.style.fontSize = '12px';
+      ta2.style.minHeight = '40px';
+      ta2.placeholder = 'What is needed to unblock? Who acts?';
+      cell.appendChild(lbl);
+      cell.appendChild(ta1);
+      cell.appendChild(ta2);
+    } else {
+      cell.innerHTML = '<span style="font-size:11px;color:#82889B;font-style:italic">Select a health status</span>';
+    }
+  });
+  td2.appendChild(hs);
 
   var td3 = document.createElement('td');
   td3.id = 'init-detail-' + idx;
@@ -916,285 +1010,240 @@ function addInitRow() {
   tbody.appendChild(tr);
 }
 
-function initHealth(sel, idx) {
-  var cell = document.getElementById('init-detail-' + idx);
-  var v = sel.value;
-  cell.innerHTML = '';
-  if (v === 'green') {
-    var lbl = document.createElement('div');
-    lbl.style.cssText = 'color:#007F91;font-size:10px;font-weight:700;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.4px';
-    lbl.textContent = 'On Track';
-    var ta = document.createElement('textarea');
-    ta.id = 'init-g-next-' + idx;
-    ta.style.cssText = 'font-size:12px;border-color:rgba(0,127,145,0.4);min-height:46px';
-    ta.placeholder = 'What is planned for next week (if anything)?';
-    cell.appendChild(lbl); cell.appendChild(ta);
-  } else if (v === 'amber') {
-    var lbl = document.createElement('div');
-    lbl.style.cssText = 'color:#7a5c00;font-size:10px;font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px';
-    lbl.textContent = 'At Risk - complete all three fields';
-    var ta1 = document.createElement('textarea');
-    ta1.id = 'init-a-risk-' + idx; ta1.style.cssText = 'font-size:12px;border-color:rgba(255,197,50,0.6);min-height:40px;margin-bottom:6px'; ta1.placeholder = 'What is at risk?';
-    var ta2 = document.createElement('textarea');
-    ta2.id = 'init-a-green-' + idx; ta2.style.cssText = 'font-size:12px;border-color:rgba(255,197,50,0.6);min-height:40px;margin-bottom:6px'; ta2.placeholder = 'What is needed to get back to green?';
-    var ta3 = document.createElement('textarea');
-    ta3.id = 'init-a-next-' + idx; ta3.style.cssText = 'font-size:12px;border-color:rgba(255,197,50,0.6);min-height:40px'; ta3.placeholder = 'What is planned for next week?';
-    cell.appendChild(lbl); cell.appendChild(ta1); cell.appendChild(ta2); cell.appendChild(ta3);
-  } else if (v === 'red') {
-    var lbl = document.createElement('div');
-    lbl.style.cssText = 'color:#E24301;font-size:10px;font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px';
-    lbl.textContent = 'Blocked - alert TPM immediately';
-    var ta1 = document.createElement('textarea');
-    ta1.id = 'init-r-block-' + idx; ta1.style.cssText = 'font-size:12px;border-color:rgba(226,67,1,0.4);min-height:40px;margin-bottom:6px'; ta1.placeholder = 'What is blocked? Delivery impact?';
-    var ta2 = document.createElement('textarea');
-    ta2.id = 'init-r-unblock-' + idx; ta2.style.cssText = 'font-size:12px;border-color:rgba(226,67,1,0.4);min-height:40px'; ta2.placeholder = 'What is needed to unblock? Who acts?';
-    cell.appendChild(lbl); cell.appendChild(ta1); cell.appendChild(ta2);
-  } else {
-    cell.innerHTML = '<span style="font-size:11px;color:#82889B;font-style:italic">Select a health status</span>';
-  }
-}
-
-// ---
 function tpmToggle(btn, cls) {
   var allCls = ['sel-action','sel-decision','sel-unblock','sel-fyi','sel-none'];
+  var btns = document.querySelectorAll('#tpm-btns .tpm-btn');
   if (cls === 'sel-none') {
-    document.querySelectorAll('#tpm-btns .tpm-btn').forEach(function(b) {
-      allCls.forEach(function(c) { b.classList.remove(c); });
-    });
+    for (var i = 0; i < btns.length; i++) {
+      for (var j = 0; j < allCls.length; j++) {
+        btns[i].classList.remove(allCls[j]);
+      }
+    }
     btn.classList.add('sel-none');
   } else {
     var noneBtn = document.querySelector('#tpm-btns .tpm-btn.sel-none');
     if (noneBtn) noneBtn.classList.remove('sel-none');
-    btn.classList.toggle(cls);
+    if (btn.classList.contains(cls)) {
+      btn.classList.remove(cls);
+    } else {
+      btn.classList.add(cls);
+    }
   }
 }
 
-// ---
 function resetChecklist() {
-  document.querySelectorAll('.cl-item').forEach(function(item) {
-    var cb = item.querySelector('input[type=checkbox]');
+  var items = document.querySelectorAll('.cl-item');
+  for (var i = 0; i < items.length; i++) {
+    var cb = items[i].querySelector('input[type=checkbox]');
     if (cb) cb.checked = false;
-    item.classList.remove('checked');
-  });
+    items[i].classList.remove('checked');
+  }
 }
 
-// ---
 function collectFormData() {
-  var teams = Array.from(document.querySelectorAll('input[name="teams"]:checked')).map(function(c) { return c.value; });
-  var otherTeam = document.getElementById('teams-other').value;
-  if (otherTeam) teams.push('Other: ' + otherTeam);
+  var teamInputs = document.querySelectorAll('input[name="teams"]:checked');
+  var teams = [];
+  for (var i = 0; i < teamInputs.length; i++) teams.push(teamInputs[i].value);
+  var otherTeam = document.getElementById('teams-other');
+  if (otherTeam && otherTeam.value) teams.push('Other: ' + otherTeam.value);
 
-  var tpmSelected = Array.from(document.querySelectorAll('#tpm-btns .tpm-btn')).filter(function(b) {
-    return ['sel-action','sel-decision','sel-unblock','sel-fyi','sel-none'].some(function(c) { return b.classList.contains(c); });
-  }).map(function(b) { return b.textContent.trim(); });
+  var tpmBtns = document.querySelectorAll('#tpm-btns .tpm-btn');
+  var tpmSelected = [];
+  var tpmCls = ['sel-action','sel-decision','sel-unblock','sel-fyi','sel-none'];
+  for (var i = 0; i < tpmBtns.length; i++) {
+    for (var j = 0; j < tpmCls.length; j++) {
+      if (tpmBtns[i].classList.contains(tpmCls[j])) {
+        tpmSelected.push(tpmBtns[i].textContent.trim());
+        break;
+      }
+    }
+  }
 
+  var workRows = document.querySelectorAll('.work-row');
   var workItems = [];
-  document.querySelectorAll('.work-row').forEach(function(row) {
-    var idx = row.getAttribute('data-idx');
+  for (var i = 0; i < workRows.length; i++) {
+    var idx = workRows[i].getAttribute('data-idx');
+    var ws = document.getElementById('work-status-' + idx);
+    var wd = document.getElementById('work-desc-' + idx);
+    var we = document.getElementById('work-epic-' + idx);
+    var wn = document.getElementById('work-next-' + idx);
+    var wb = document.getElementById('work-block-' + idx);
     workItems.push({
-      status:  (document.getElementById('work-status-' + idx) || {}).value || '',
-      desc:    (document.getElementById('work-desc-' + idx) || {}).value || '',
-      epic:    (document.getElementById('work-epic-' + idx) || {}).value || '',
-      next:    (document.getElementById('work-next-' + idx) || {}).value || '',
-      blocker: (document.getElementById('work-block-' + idx) || {}).value || ''
+      status:  ws ? ws.value : '',
+      desc:    wd ? wd.value : '',
+      epic:    we ? we.value : '',
+      next:    wn ? wn.value : '',
+      blocker: wb ? wb.value : ''
     });
-  });
+  }
 
+  var initRows = document.querySelectorAll('#init-rows tr');
   var initiatives = [];
-  document.querySelectorAll('#init-rows tr').forEach(function(tr) {
-    var idx = tr.id.replace('init-row-', '');
-    var health = (document.getElementById('init-health-' + idx) || {}).value || '';
-    var entry = {
-      name:      (document.getElementById('init-name-' + idx) || {}).value || '',
-      health:    health,
-      nextWeek:  (document.getElementById('init-g-next-' + idx) || {}).value || '',
-      atRisk:    (document.getElementById('init-a-risk-' + idx) || {}).value || '',
-      toGreen:   (document.getElementById('init-a-green-' + idx) || {}).value || '',
-      amberNext: (document.getElementById('init-a-next-' + idx) || {}).value || '',
-      blocked:   (document.getElementById('init-r-block-' + idx) || {}).value || '',
-      unblock:   (document.getElementById('init-r-unblock-' + idx) || {}).value || ''
-    };
-    if (entry.name) initiatives.push(entry);
-  });
+  for (var i = 0; i < initRows.length; i++) {
+    var rowId = initRows[i].id.replace('init-row-', '');
+    var ih = document.getElementById('init-health-' + rowId);
+    var iname = document.getElementById('init-name-' + rowId);
+    if (!iname || !iname.value) continue;
+    initiatives.push({
+      name:      iname ? iname.value : '',
+      health:    ih ? ih.value : '',
+      nextWeek:  (document.getElementById('init-g-next-' + rowId) || {value:''}).value,
+      atRisk:    (document.getElementById('init-a-risk-' + rowId) || {value:''}).value,
+      toGreen:   (document.getElementById('init-a-green-' + rowId) || {value:''}).value,
+      amberNext: (document.getElementById('init-a-next-' + rowId) || {value:''}).value,
+      blocked:   (document.getElementById('init-r-block-' + rowId) || {value:''}).value,
+      unblock:   (document.getElementById('init-r-unblock-' + rowId) || {value:''}).value
+    });
+  }
 
-  var coReasonEl = document.querySelector('input[name="co-reason"]:checked');
+  var coR = document.querySelector('input[name="co-reason"]:checked');
+  var condCo  = document.getElementById('cond-co');
+  var condHco = document.getElementById('cond-hco');
+  var condP1  = document.getElementById('cond-p1');
+
+  function val(id) { var el = document.getElementById(id); return el ? el.value : ''; }
 
   return {
     submittedAt:        new Date().toISOString(),
-    baName:             (document.getElementById('ba-name') || {}).value || '',
-    weekEnding:         (document.getElementById('week-ending') || {}).value || '',
-    sprintNum:          (document.getElementById('sprint-num') || {}).value || '',
-    sprintDates:        (document.getElementById('sprint-dates') || {}).value || '',
+    baName:             val('ba-name'),
+    weekEnding:         val('week-ending'),
+    sprintNum:          val('sprint-num'),
+    sprintDates:        val('sprint-dates'),
     teams:              teams,
-    primaryInitiatives: (document.getElementById('primary-initiatives') || {}).value || '',
-    ptsCommitted:       (document.getElementById('pts-c') || {}).value || '',
-    ptsCompleted:       (document.getElementById('pts-d') || {}).value || '',
-    pctComplete:        (document.getElementById('pts-pct') || {}).value || '',
-    hasCarryover:       !!(document.getElementById('cond-co') && document.getElementById('cond-co').classList.contains('show')),
-    coWhat:             (document.getElementById('co-what') || {}).value || '',
-    coReason:           coReasonEl ? coReasonEl.value : '',
-    coWhy:              (document.getElementById('co-why') || {}).value || '',
-    hasHappyCarryover:  !!(document.getElementById('cond-hco') && document.getElementById('cond-hco').classList.contains('show')),
-    hcoWhat:            (document.getElementById('hco-what') || {}).value || '',
-    hcoWhy:             (document.getElementById('hco-why') || {}).value || '',
-    keyDelivered:       (document.getElementById('key-delivered') || {}).value || '',
-    biggestWin:         (document.getElementById('biggest-win') || {}).value || '',
-    improve:            (document.getElementById('improve') || {}).value || '',
+    primaryInitiatives: val('primary-initiatives'),
+    ptsCommitted:       val('pts-c'),
+    ptsCompleted:       val('pts-d'),
+    pctComplete:        val('pts-pct'),
+    hasCarryover:       condCo  ? condCo.classList.contains('show')  : false,
+    coWhat:             val('co-what'),
+    coReason:           coR ? coR.value : '',
+    coWhy:              val('co-why'),
+    hasHappyCarryover:  condHco ? condHco.classList.contains('show') : false,
+    hcoWhat:            val('hco-what'),
+    hcoWhy:             val('hco-why'),
+    keyDelivered:       val('key-delivered'),
+    biggestWin:         val('biggest-win'),
+    improve:            val('improve'),
     workItems:          workItems,
-    snowOpened:         (document.getElementById('snow-opened') || {}).value || '',
-    snowClosed:         (document.getElementById('snow-closed') || {}).value || '',
-    snowFlight:         (document.getElementById('snow-flight') || {}).value || '',
-    hasP1:              !!(document.getElementById('cond-p1') && document.getElementById('cond-p1').classList.contains('show')),
-    p1What:             (document.getElementById('p1-what') || {}).value || '',
-    p1Status:           (document.getElementById('p1-status') || {}).value || '',
-    p1Next:             (document.getElementById('p1-next') || {}).value || '',
+    snowOpened:         val('snow-opened'),
+    snowClosed:         val('snow-closed'),
+    snowFlight:         val('snow-flight'),
+    hasP1:              condP1  ? condP1.classList.contains('show')  : false,
+    p1What:             val('p1-what'),
+    p1Status:           val('p1-status'),
+    p1Next:             val('p1-next'),
     initiatives:        initiatives,
-    depsRisks:          (document.getElementById('deps-risks') || {}).value || '',
+    depsRisks:          val('deps-risks'),
     tpmHelp:            tpmSelected,
-    tpmDetail:          (document.getElementById('tpm-detail') || {}).value || ''
+    tpmDetail:          val('tpm-detail')
   };
 }
 
-// ---
 var FLOW_URL = 'https://defaultb110eddf23ae457ca6f3734d592b28.47.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/526d041d37ba43b98e9b894450bc6716/triggers/manual/paths/invoke?api-version=1';
 
 function submitForm() {
   var btn = document.getElementById('submit-btn');
-  var baName     = (document.getElementById('ba-name') || {}).value || '';
-  var weekEnding = (document.getElementById('week-ending') || {}).value || '';
-  var sprintNum  = (document.getElementById('sprint-num') || {}).value || '';
+  var baName    = val2('ba-name').trim();
+  var weekEnd   = val2('week-ending');
+  var sprint    = val2('sprint-num').trim();
 
-  baName = baName.trim();
-  sprintNum = sprintNum.trim();
-
-  if (!baName || !weekEnding || !sprintNum) {
-    alert('Please complete Section A (BA Name, Week Ending, and Sprint #) before submitting.');
+  if (!baName || !weekEnd || !sprint) {
+    alert('Please complete Section A before submitting.');
     return;
   }
-
-  if (FLOW_URL === 'YOUR_POWER_AUTOMATE_URL_HERE') {
-    alert('Setup required: Paste your Power Automate URL into the FLOW_URL variable in this file. See the Setup Guide.');
+  if (FLOW_URL === 'https://defaultb110eddf23ae457ca6f3734d592b28.47.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/526d041d37ba43b98e9b894450bc6716/triggers/manual/paths/invoke?api-version=1') {
+    alert('Setup required: paste your Power Automate URL into the FLOW_URL variable in this file.');
     return;
   }
-
   btn.disabled = true;
   btn.textContent = 'Submitting...';
-
   var data = collectFormData();
-
   fetch(FLOW_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
-  })
-  .then(function(response) {
-    if (!response.ok) throw new Error('Server returned ' + response.status + ': ' + response.statusText);
-    return response;
-  })
-  .then(function() {
-    btn.textContent = 'OK Submitted';
+  }).then(function(r) {
+    if (!r.ok) throw new Error('Server error: ' + r.status);
+    btn.textContent = 'Submitted!';
     var toast = document.getElementById('toast');
     if (toast) { toast.style.display = 'block'; setTimeout(function() { toast.style.display = 'none'; }, 5000); }
-    document.querySelectorAll('.progress-step').forEach(function(s) { s.classList.add('done'); });
-  })
-  .catch(function(err) {
+    var steps = document.querySelectorAll('.progress-step');
+    for (var i = 0; i < steps.length; i++) steps[i].classList.add('done');
+  }).catch(function(err) {
     btn.disabled = false;
     btn.textContent = 'Submit Weekly Update';
-    alert('Submission failed. Check your Power Automate URL and network connection.
-
-Error: ' + err.message);
+    alert('Submission failed: ' + err.message);
   });
 }
 
-// ---
+function val2(id) { var el = document.getElementById(id); return el ? el.value : ''; }
+
 document.addEventListener('DOMContentLoaded', function() {
 
-  // Tab navigation
-  document.querySelectorAll('.tab-nav-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var tabId = this.getAttribute('data-tab');
-      if (tabId) switchTab(tabId, this);
+  var tabBtns = document.querySelectorAll('.tab-nav-btn');
+  for (var i = 0; i < tabBtns.length; i++) {
+    tabBtns[i].addEventListener('click', function() {
+      switchTab(this.getAttribute('data-tab'), this);
     });
-  });
+  }
 
-  // Section accordions
-  document.querySelectorAll('[data-toggle="section"]').forEach(function(el) {
-    el.addEventListener('click', function() {
-      var idx = this.getAttribute('data-idx');
-      toggleSection(idx);
+  var secHeads = document.querySelectorAll('[data-toggle="section"]');
+  for (var i = 0; i < secHeads.length; i++) {
+    secHeads[i].addEventListener('click', function() {
+      toggleSection(this.getAttribute('data-idx'));
     });
-  });
+  }
 
-  // Guide accordions
-  document.querySelectorAll('[data-toggle="guide"]').forEach(function(el) {
-    el.addEventListener('click', function() {
+  var guideHeads = document.querySelectorAll('[data-toggle="guide"]');
+  for (var i = 0; i < guideHeads.length; i++) {
+    guideHeads[i].addEventListener('click', function() {
       toggleGuide(this);
     });
-  });
+  }
 
-  // Checklist items
-  document.querySelectorAll('.cl-item').forEach(function(item) {
-    item.addEventListener('click', function() {
+  var clItems = document.querySelectorAll('.cl-item');
+  for (var i = 0; i < clItems.length; i++) {
+    clItems[i].addEventListener('click', function() {
       var cb = this.querySelector('input[type=checkbox]');
-      if (cb) {
-        cb.checked = !cb.checked;
-        this.classList.toggle('checked', cb.checked);
-      }
+      if (cb) { cb.checked = !cb.checked; this.classList.toggle('checked', cb.checked); }
     });
-  });
+  }
 
-  // TPM buttons
-  document.querySelectorAll('.tpm-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
+  var tpmBtns = document.querySelectorAll('.tpm-btn');
+  for (var i = 0; i < tpmBtns.length; i++) {
+    tpmBtns[i].addEventListener('click', function() {
       var cls = this.getAttribute('data-cls');
       if (cls) tpmToggle(this, cls);
     });
-  });
+  }
 
-  // Yes/No buttons via data attributes
-  document.querySelectorAll('[data-yn]').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var key = this.getAttribute('data-yn');
-      var val = this.getAttribute('data-val');
-      ynToggle(this, key, val);
+  var ynBtns = document.querySelectorAll('[data-yn]');
+  for (var i = 0; i < ynBtns.length; i++) {
+    ynBtns[i].addEventListener('click', function() {
+      ynToggle(this, this.getAttribute('data-yn'), this.getAttribute('data-val'));
     });
-  });
+  }
 
-  // Action buttons via data attributes
-  document.querySelectorAll('[data-action]').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var action = this.getAttribute('data-action');
-      if (action === 'addWorkRow') addWorkRow();
-      else if (action === 'addInitRow') addInitRow();
-      else if (action === 'submitForm') submitForm();
-      else if (action === 'resetChecklist') resetChecklist();
-      else if (action === 'calcPct') calcPct();
+  var actionBtns = document.querySelectorAll('[data-action]');
+  for (var i = 0; i < actionBtns.length; i++) {
+    actionBtns[i].addEventListener('click', function() {
+      var a = this.getAttribute('data-action');
+      if (a === 'addWorkRow') addWorkRow();
+      else if (a === 'addInitRow') addInitRow();
+      else if (a === 'submitForm') submitForm();
+      else if (a === 'resetChecklist') resetChecklist();
     });
-  });
+  }
 
-  // oninput for calcPct on metric cards
   var ptsC = document.getElementById('pts-c');
   var ptsD = document.getElementById('pts-d');
   if (ptsC) ptsC.addEventListener('input', calcPct);
   if (ptsD) ptsD.addEventListener('input', calcPct);
 
-  // Init default rows
   addWorkRow();
   addWorkRow();
   addInitRow();
 });
-
-// Expose functions needed by remaining inline handlers
-window.ynToggle    = ynToggle;
-window.calcPct     = calcPct;
-window.tpmToggle   = tpmToggle;
-window.addWorkRow  = addWorkRow;
-window.addInitRow  = addInitRow;
-window.switchTab   = switchTab;
-window.submitForm  = submitForm;
-window.resetChecklist = resetChecklist;
-
-})();
 </script>
 </body>
 </html>
