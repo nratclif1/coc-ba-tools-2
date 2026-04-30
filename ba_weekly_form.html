@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoC Technology — BA Weekly Status Update</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700;900&display=swap');
+
+  :root {
+    --navy:#103454; --navy-dark:#0a2238; --navy-mid:#174060; --navy-light:#1e5278;
+    --blue:#1797D7; --teal:#007F91; --teal-dim:#cceaed;
+    --yellow:#FFC532; --yellow-dim:#fff3d0;
+    --orange:#E24301; --orange-dim:#fbe0d5;
+    --grey:#82889B; --grey-light:#F8F8F8; --white:#ffffff;
+    --accent-dim:#e6f4fc;
+    --blue-dim:#e6f4fc;
+    --bg:#f0f4f8; --surface:var(--white); --surface2:var(--grey-light);
+    --surface3:#e8edf3; --border:#d0d8e4; --border2:#b0bccf;
+    --text:var(--navy); --text2:#3a5068; --text3:var(--grey);
+    --purple:var(--blue); --purple-dim:var(--accent-dim);
+    --green:var(--teal); --green-dim:var(--teal-dim);
+    --amber:var(--yellow); --amber-dim:var(--yellow-dim);
+    --red:var(--orange); --red-dim:var(--orange-dim);
+    --radius:8px; --radius-lg:12px;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+
+  body{font-family:'Inter Tight',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+  .page-header{background:var(--navy);border-bottom:3px solid var(--blue);padding:18px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+  .page-header-left{display:flex;flex-direction:column;gap:3px}
+  .page-header h1{font-size:16px;font-weight:700;color:var(--white);letter-spacing:-0.2px}
+  .page-header p{font-size:12px;color:rgba(255,255,255,0.6)}
+  .due-badge{font-size:11px;font-weight:700;background:var(--yellow);color:var(--navy);border-radius:4px;padding:4px 12px}
+
+  .container{max-width:780px;margin:0 auto;padding:28px 24px 80px}
+
+  .progress-bar{display:flex;gap:5px;margin-bottom:24px}
+  .progress-step{flex:1;height:4px;border-radius:2px;background:var(--border);transition:background 0.3s}
+  .progress-step.done,.progress-step.active{background:var(--blue)}
+  .progress-step.active{opacity:0.5}
+
+  .section-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:14px;overflow:hidden;box-shadow:0 1px 4px rgba(16,52,84,0.06)}
+  .section-head{display:flex;align-items:center;gap:12px;padding:15px 20px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;background:var(--surface)}
+  .section-head:hover{background:var(--grey-light)}
+  .sec-letter{width:28px;height:28px;border-radius:6px;background:var(--navy);color:var(--white);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .sec-title{font-size:14px;font-weight:600;flex:1;color:var(--navy)}
+  .sec-badges{display:flex;gap:6px;align-items:center}
+  .badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px}
+  .badge-req{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(226,67,1,0.3)}
+  .badge-opt{background:var(--accent-dim);color:var(--navy);border:1px solid rgba(23,151,215,0.3)}
+  .badge-done{background:var(--teal-dim);color:var(--teal);border:1px solid rgba(0,127,145,0.3)}
+  .chevron{color:var(--grey);font-size:11px;transition:transform 0.2s}
+  .chevron.open{transform:rotate(180deg)}
+
+  .section-body{padding:20px;display:none}
+  .section-body.open{display:block}
+
+  .field{margin-bottom:16px}
+  .field:last-child{margin-bottom:0}
+  .field label{display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px;letter-spacing:0.5px;text-transform:uppercase}
+  .field label .req{color:var(--orange);margin-left:3px}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+  input[type=text],input[type=date],input[type=number],select,textarea{width:100%;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;font-size:13px;color:var(--navy);font-family:'Inter Tight',Arial,sans-serif;transition:border-color 0.15s,box-shadow 0.15s;outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(23,151,215,0.15)}
+  select{cursor:pointer}
+  textarea{resize:vertical;min-height:72px}
+
+  .metric-card{background:var(--navy);border:1px solid var(--navy-light);border-radius:var(--radius);padding:14px;text-align:center}
+  .metric-card .mc-label{font-size:10px;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;font-weight:600}
+  .metric-card input{text-align:center;font-size:24px;font-weight:700;background:transparent;border:none;padding:0;color:var(--white);width:100%;font-family:'Inter Tight',Arial,sans-serif}
+  .metric-card input:focus{box-shadow:none;border:none}
+  #pts-pct{color:var(--yellow) !important}
+
+  .help-text{font-size:11px;color:var(--grey);margin-top:5px;font-style:italic;line-height:1.5}
+
+  .yn-group{display:flex;gap:8px;margin-top:8px}
+  .yn-btn{padding:7px 22px;border-radius:20px;border:1.5px solid var(--border2);font-size:12px;font-weight:600;cursor:pointer;background:var(--white);color:var(--text2);font-family:'Inter Tight',Arial,sans-serif;transition:all 0.15s}
+  .yn-btn:hover{border-color:var(--blue);color:var(--blue)}
+  .yn-btn.yes{background:var(--teal-dim);color:var(--teal);border-color:var(--teal);font-weight:700}
+  .yn-btn.no{background:var(--orange-dim);color:var(--orange);border-color:var(--orange);font-weight:700}
+
+  .cond-block{background:var(--accent-dim);border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;padding:14px 16px;margin-top:12px;display:none}
+  .cond-block.show{display:block}
+  .cond-block .cond-title{font-size:10px;font-weight:700;color:var(--navy);margin-bottom:10px;letter-spacing:0.5px;text-transform:uppercase}
+
+  .checkbox-group{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+  .checkbox-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);cursor:pointer}
+  .checkbox-item input[type=checkbox]{width:15px;height:15px;accent-color:var(--blue);cursor:pointer;flex-shrink:0}
+  .radio-group{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+  .radio-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);cursor:pointer}
+  .radio-item input[type=radio]{width:15px;height:15px;accent-color:var(--blue);cursor:pointer;flex-shrink:0}
+
+  .work-table{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:6px}
+  .work-table-head{display:grid;grid-template-columns:110px 1fr 160px 130px;padding:8px 12px;background:var(--navy);font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:rgba(255,255,255,0.7);font-weight:600;gap:8px}
+  .work-row{display:grid;grid-template-columns:110px 1fr 160px 130px;padding:8px 12px;border-top:1px solid var(--border);gap:8px;align-items:start;background:var(--white)}
+  .work-row:hover{background:var(--grey-light)}
+  .work-row select,.work-row input{font-size:12px;padding:5px 8px}
+
+  .block-detail{background:var(--orange-dim);border-top:1px solid rgba(226,67,1,0.2);padding:10px 12px}
+  .block-detail label{font-size:10px;color:var(--orange);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;display:block;font-weight:600}
+
+  .add-row-btn{padding:8px 14px;border-top:1px solid var(--border);background:var(--grey-light);font-size:12px;font-weight:600;color:var(--blue);cursor:pointer;border-left:none;border-right:none;border-bottom:none;width:100%;text-align:left;font-family:'Inter Tight',Arial,sans-serif;transition:background 0.15s}
+  .add-row-btn:hover{background:var(--accent-dim)}
+
+  .health-defs{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+  .health-def{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:var(--radius);border:1px solid}
+  .health-def.green{background:var(--teal-dim);border-color:rgba(0,127,145,0.3)}
+  .health-def.amber{background:var(--yellow-dim);border-color:rgba(255,197,50,0.5)}
+  .health-def.red{background:var(--orange-dim);border-color:rgba(226,67,1,0.3)}
+  .health-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px}
+  .health-def.green .health-dot{background:var(--teal)}
+  .health-def.amber .health-dot{background:#b88900}
+  .health-def.red .health-dot{background:var(--orange)}
+  .health-def-text .hd-title{font-size:12px;font-weight:700;margin-bottom:2px}
+  .health-def.green .hd-title{color:var(--teal)}
+  .health-def.amber .hd-title{color:#7a5c00}
+  .health-def.red .hd-title{color:var(--orange)}
+  .health-def-text .hd-desc{font-size:11px;color:var(--text2);line-height:1.5}
+
+  .init-table{width:100%;border-collapse:collapse;border:1px solid var(--border);overflow:hidden;font-size:12px;table-layout:fixed}
+  .init-table th{background:var(--navy);padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:rgba(255,255,255,0.8);border-bottom:1px solid var(--navy-light);text-align:left}
+  .init-table td{padding:8px 8px;border-bottom:1px solid var(--border);vertical-align:top;background:var(--white)}
+  .init-table tr:last-child td{border-bottom:none}
+  .init-table input,.init-table textarea,.init-table select{font-size:12px;padding:5px 8px}
+  .init-table textarea{min-height:50px}
+
+  .tpm-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .tpm-btn{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border2);font-size:12px;font-weight:600;cursor:pointer;background:var(--white);color:var(--text2);font-family:'Inter Tight',Arial,sans-serif;transition:all 0.15s}
+  .tpm-btn:hover{border-color:var(--blue);color:var(--blue)}
+  .tpm-btn.sel-action{background:var(--orange-dim);color:var(--orange);border-color:var(--orange)}
+  .tpm-btn.sel-decision{background:var(--yellow-dim);color:#7a5c00;border-color:var(--yellow)}
+  .tpm-btn.sel-unblock{background:var(--accent-dim);color:var(--navy);border-color:var(--blue)}
+  .tpm-btn.sel-fyi{background:var(--teal-dim);color:var(--teal);border-color:var(--teal)}
+  .tpm-btn.sel-none{background:var(--grey-light);color:var(--grey);border-color:var(--grey)}
+
+  .submit-section{margin-top:24px}
+  .submit-note{font-size:12px;color:var(--text2);background:var(--yellow-dim);border:1px solid rgba(255,197,50,0.4);border-radius:var(--radius);padding:12px 16px;margin-bottom:16px;line-height:1.6}
+  .submit-note strong{color:var(--navy);font-weight:700}
+
+  .submit-btn{width:100%;padding:14px;background:var(--navy);color:var(--white);border:none;border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter Tight',Arial,sans-serif;transition:background 0.15s;letter-spacing:0.2px}
+  .submit-btn:hover{background:var(--navy-light)}
+  .submit-btn:disabled{opacity:0.4;cursor:not-allowed}
+
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--teal);color:var(--white);padding:12px 20px;border-radius:var(--radius);font-size:13px;font-weight:600;z-index:1000;display:none;animation:slideIn 0.2s ease;box-shadow:0 4px 16px rgba(0,127,145,0.4)}
+  @keyframes slideIn{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+  .divider{height:1px;background:var(--border);margin:16px 0}
+
+  .footer-note{background:var(--navy);border-radius:var(--radius);padding:14px 16px;margin-top:16px}
+  .footer-note ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+  .footer-note li{font-size:12px;color:rgba(255,255,255,0.75);display:flex;gap:8px;line-height:1.5}
+  .footer-note li::before{content:'—';color:var(--blue);flex-shrink:0}
+
+  select option{background:var(--white);color:var(--navy)}
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+  /* Tab navigation */
+  .tab-nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 32px;display:flex;gap:0;box-shadow:0 1px 4px rgba(16,52,84,0.06)}
+  .tab-nav-btn{padding:13px 22px;font-size:13px;font-weight:600;font-family:'Inter Tight',Arial,sans-serif;color:var(--grey);background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;transition:color 0.15s,border-color 0.15s;white-space:nowrap}
+  .tab-nav-btn:hover{color:var(--navy)}
+  .tab-nav-btn.active{color:var(--navy);border-bottom-color:var(--blue)}
+  .tab-panel{display:none}
+  .tab-panel.active{display:block}
+
+  /* Answer Quality Guide */
+  .guide-intro{background:var(--accent-dim);border:1px solid rgba(23,151,215,0.2);border-radius:var(--radius);padding:12px 16px;font-size:12px;color:var(--navy);line-height:1.6;margin-bottom:20px}
+  .guide-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:14px;overflow:hidden;box-shadow:0 1px 4px rgba(16,52,84,0.06)}
+  .guide-section-header{display:flex;align-items:center;gap:10px;padding:13px 18px;border-bottom:1px solid var(--border);background:var(--grey-light);cursor:pointer;user-select:none}
+  .guide-section-header:hover{background:var(--surface3)}
+  .guide-sec-letter{width:24px;height:24px;border-radius:5px;background:var(--navy);color:var(--white);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .guide-sec-title{font-size:13px;font-weight:600;flex:1;color:var(--navy)}
+  .guide-sec-chevron{font-size:11px;color:var(--grey);transition:transform 0.2s}
+  .guide-sec-chevron.open{transform:rotate(180deg)}
+  .guide-section-body{padding:18px;display:none}
+  .guide-section-body.open{display:block}
+  .qa-item{margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+  .qa-item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+  .qa-field-label{font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px}
+  .qa-row{display:grid;grid-template-columns:90px 1fr;gap:10px;margin-bottom:8px;align-items:start}
+  .qa-row:last-child{margin-bottom:0}
+  .qa-badge{padding:4px 10px;border-radius:4px;font-size:10px;font-weight:700;text-align:center;letter-spacing:0.3px}
+  .qa-excellent{background:var(--teal-dim);color:var(--teal);border:1px solid rgba(0,127,145,0.3)}
+  .qa-good{background:var(--yellow-dim);color:#7a5c00;border:1px solid rgba(255,197,50,0.4)}
+  .qa-weak{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(226,67,1,0.3)}
+  .qa-text{font-size:12px;color:var(--text2);line-height:1.6}
+  .qa-weak-text{font-size:12px;color:var(--grey);line-height:1.6;font-style:italic}
+
+  /* Reporting Checklist */
+  .checklist-intro{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:20px;display:flex;align-items:flex-start;gap:12px}
+  .checklist-intro-icon{font-size:20px;flex-shrink:0}
+  .checklist-intro p{font-size:12px;color:var(--text2);line-height:1.7}
+  .cl-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:14px;overflow:hidden;box-shadow:0 1px 4px rgba(16,52,84,0.06)}
+  .cl-section-header{display:flex;align-items:center;gap:10px;padding:13px 18px;background:var(--grey-light);border-bottom:1px solid var(--border)}
+  .cl-sec-letter{width:24px;height:24px;border-radius:5px;background:var(--navy);color:var(--white);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .cl-sec-title{font-size:13px;font-weight:600;flex:1;color:var(--navy)}
+  .cl-sec-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px}
+  .cl-req{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(226,67,1,0.25)}
+  .cl-cond{background:var(--accent-dim);color:var(--navy);border:1px solid rgba(23,151,215,0.25)}
+  .cl-list{list-style:none;padding:0}
+  .cl-item{display:flex;align-items:flex-start;gap:12px;padding:11px 18px;border-bottom:1px solid var(--border);transition:background 0.1s;cursor:pointer}
+  .cl-item:last-child{border-bottom:none}
+  .cl-item:hover{background:var(--grey-light)}
+  .cl-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--blue);cursor:pointer;flex-shrink:0;margin-top:2px}
+  .cl-item-body{flex:1}
+  .cl-item-label{font-size:13px;color:var(--text);line-height:1.4}
+  .cl-item-sub{font-size:11px;color:var(--grey);margin-top:3px;line-height:1.5}
+  .cl-item.checked .cl-item-label{color:var(--grey);text-decoration:line-through}
+  .adhoc-card{background:var(--yellow-dim);border:1px solid rgba(255,197,50,0.5);border-radius:var(--radius-lg);padding:18px;margin-bottom:14px}
+  .adhoc-card-title{font-size:13px;font-weight:700;color:#7a5c00;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .adhoc-item{font-size:12px;color:var(--text2);padding:7px 0;border-bottom:1px solid rgba(255,197,50,0.2);display:flex;gap:10px;line-height:1.5}
+  .adhoc-item:last-child{border-bottom:none;padding-bottom:0}
+  .adhoc-item::before{content:'→';color:#b88900;flex-shrink:0}
+  .reset-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:var(--white);border:1.5px solid var(--border2);border-radius:var(--radius);font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Inter Tight',Arial,sans-serif;transition:all 0.15s;margin-bottom:16px}
+  .reset-btn:hover{border-color:var(--blue);color:var(--blue)}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>CoC Technology — BA Weekly Status Update</h1>
+    <p>Complete all required sections before submitting. This form is the source of truth for weekly reporting.</p>
+  </div>
+  <div class="due-badge">Due: EOD Thursday</div>
+</div>
+
+<nav class="tab-nav">
+  <button type="button" class="tab-nav-btn active" data-tab="form">Weekly Update Form</button>
+  <button type="button" class="tab-nav-btn" data-tab="guide">Answer Quality Guide</button>
+  <button type="button" class="tab-nav-btn" data-tab="checklist">Reporting Checklist</button>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     TAB: WEEKLY UPDATE FORM
+════════════════════════════════════════════ -->
+<div class="tab-panel active" id="tab-form">
+<div class="container">
+  <div class="progress-bar" id="progress-bar">
+    <div class="progress-step active"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+  </div>
+
+  <!-- SECTION A -->
+  <div class="section-card" data-section="0">
+    <div class="section-head" data-toggle="section" data-idx="0">
+      <div class="sec-letter">A</div>
+      <div class="sec-title">BA &amp; Sprint Context</div>
+      <div class="sec-badges">
+        <span class="badge badge-req">Required</span>
+        <span class="chevron" id="chev-0">▼</span>
+      </div>
+    </div>
+    <div class="section-body open" id="body-0">
+      <div class="grid2">
+        <div class="field"><label>BA Name <span class="req">*</span></label><input type="text" id="ba-name" placeholder="Your full name"></div>
+        <div class="field"><label>Week Ending <span class="req">*</span></label><input type="date" id="week-ending"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Sprint # <span class="req">*</span></label><input type="text" id="sprint-num" placeholder="e.g. Sprint 42"></div>
+        <div class="field"><label>Sprint Dates <span class="req">*</span></label><input type="text" id="sprint-dates" placeholder="e.g. Apr 21 – May 2"></div>
+      </div>
+      <div class="field">
+        <label>Engineering Team(s) Supported <span class="req">*</span></label>
+        <div class="checkbox-group">
+          <label class="checkbox-item"><input type="checkbox" name="teams" value="Dynamics/DOX/Tech Enablement"> Dynamics / DOX / Tech Enablement</label>
+          <label class="checkbox-item"><input type="checkbox" name="teams" value="Data Engineering"> Data Engineering</label>
+          <label class="checkbox-item"><input type="checkbox" name="teams" value="Reporting & Analytics"> Reporting &amp; Analytics</label>
+          <label class="checkbox-item"><input type="checkbox" name="teams" value="AppDev"> AppDev</label>
+          <label class="checkbox-item"><input type="checkbox" name="teams" value="other-team"> Other — <input type="text" id="teams-other" placeholder="specify…" style="width:150px;display:inline-block;margin-left:8px;padding:4px 8px;font-size:12px"></label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Primary Initiative(s) Supported This Sprint <span class="req">*</span></label>
+        <textarea id="primary-initiatives" placeholder="List the key initiatives your work this sprint was aligned to…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION B -->
+  <div class="section-card" data-section="1">
+    <div class="section-head" data-toggle="section" data-idx="1">
+      <div class="sec-letter">B</div>
+      <div class="sec-title">Sprint Run-Down</div>
+      <div class="sec-badges">
+        <span class="badge badge-req">Required</span>
+        <span class="chevron" id="chev-1">▼</span>
+      </div>
+    </div>
+    <div class="section-body open" id="body-1">
+      <div class="grid3">
+        <div class="metric-card"><div class="mc-label">Story Pts Committed *</div><input type="number" id="pts-c" placeholder="0" oninput="calcPct()"></div>
+        <div class="metric-card"><div class="mc-label">Story Pts Completed *</div><input type="number" id="pts-d" placeholder="0" oninput="calcPct()"></div>
+        <div class="metric-card"><div class="mc-label">Completion %</div><input type="text" id="pts-pct" placeholder="—" readonly style="color:var(--purple)"></div>
+      </div>
+      <div class="field">
+        <label>Was there carryover from the prior sprint? <span class="req">*</span></label>
+        <div class="yn-group">
+          <button type="button" class="yn-btn" onclick="ynToggle(this,'co','yes')">Yes</button>
+          <button type="button" class="yn-btn" onclick="ynToggle(this,'co','no')">No</button>
+        </div>
+        <div class="cond-block" id="cond-co">
+          <div class="cond-title">Carryover Details</div>
+          <div class="field"><label>What was carried over? <span class="req">*</span></label><textarea id="co-what" placeholder="List the stories, tickets, or work items that carried over…"></textarea></div>
+          <div class="field">
+            <label>Primary reason for carryover <span class="req">*</span></label>
+            <div class="radio-group">
+              <label class="radio-item"><input type="radio" name="co-reason" value="Dependency"> Dependency</label>
+              <label class="radio-item"><input type="radio" name="co-reason" value="Scope change"> Scope change</label>
+              <label class="radio-item"><input type="radio" name="co-reason" value="Capacity"> Capacity</label>
+              <label class="radio-item"><input type="radio" name="co-reason" value="Defect/incident"> Defect / incident</label>
+              <label class="radio-item"><input type="radio" name="co-reason" value="Other"> Other — <input type="text" id="co-reason-other" placeholder="specify…" style="width:150px;display:inline-block;margin-left:8px;padding:4px 8px;font-size:12px"></label>
+            </div>
+          </div>
+          <div class="field"><label>Additional context on carryover <span class="req">*</span></label><textarea id="co-why" placeholder="Provide context on why this carried over and any actions being taken…"></textarea></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Was there any "happy carryover"? <span class="req">*</span></label>
+        <p class="help-text">Happy carryover = items intentionally deferred or pulled forward that improve delivery health.</p>
+        <div class="yn-group">
+          <button type="button" class="yn-btn" onclick="ynToggle(this,'hco','yes')">Yes</button>
+          <button type="button" class="yn-btn" onclick="ynToggle(this,'hco','no')">No</button>
+        </div>
+        <div class="cond-block" id="cond-hco">
+          <div class="cond-title">Happy Carryover Details</div>
+          <div class="field"><label>What was carried over or pulled forward? <span class="req">*</span></label><textarea id="hco-what" placeholder="Describe what was intentionally moved…"></textarea></div>
+          <div class="field"><label>Why is this a positive outcome? <span class="req">*</span></label><textarea id="hco-why" placeholder="Explain why this shift improves delivery health or sprint outcomes…"></textarea></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION C -->
+  <div class="section-card" data-section="2">
+    <div class="section-head" data-toggle="section" data-idx="2">
+      <div class="sec-letter">C</div>
+      <div class="sec-title">Prior Sprint Outcomes</div>
+      <div class="sec-badges">
+        <span class="badge badge-req">Required</span>
+        <span class="chevron" id="chev-2">▼</span>
+      </div>
+    </div>
+    <div class="section-body open" id="body-2">
+      <div class="field"><label>Key Work Delivered (1–3 bullets) <span class="req">*</span></label><textarea id="key-delivered" placeholder="• Item 1&#10;• Item 2&#10;• Item 3" style="min-height:90px"></textarea></div>
+      <div class="field"><label>Biggest Win This Sprint <span class="req">*</span></label><p class="help-text">Focus on outcomes and impact, not just tasks completed.</p><textarea id="biggest-win" placeholder="What went really well? What should we celebrate or replicate?"></textarea></div>
+      <div class="field"><label>What does the team need to improve or focus on next sprint? <span class="req">*</span></label><textarea id="improve" placeholder="Be specific — what behavior, process, or gap should the team address?"></textarea></div>
+    </div>
+  </div>
+
+  <!-- SECTION D -->
+  <div class="section-card" data-section="3">
+    <div class="section-head" data-toggle="section" data-idx="3">
+      <div class="sec-letter">D</div>
+      <div class="sec-title">Weekly Execution Breakdown</div>
+      <div class="sec-badges">
+        <span class="badge badge-req">Required</span>
+        <span class="chevron" id="chev-3">▼</span>
+      </div>
+    </div>
+    <div class="section-body open" id="body-3">
+      <p style="font-size:12px;color:var(--blue);background:#e6f4fc;border:1px solid rgba(23,151,215,0.2);border-radius:var(--radius);padding:10px 14px;margin-bottom:14px;line-height:1.6;">
+        List delivery-relevant items you actively worked on this week. Limit to 3–5 meaningful items. This is not a task list — focus on items with dependencies, decisions, or forward momentum.
+      </p>
+      <div class="work-table">
+        <div class="work-table-head"><span>Status</span><span>Work Item Description</span><span>Epic / Initiative / Issue</span><span>Next Steps</span></div>
+        <div id="work-rows"></div>
+        <div id="block-details"></div>
+        <button type="button" class="add-row-btn" onclick="addWorkRow()">+ Add work item</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION E -->
+  <div class="section-card" data-section="4">
+    <div class="section-head" data-toggle="section" data-idx="4">
+      <div class="sec-letter">E</div>
+      <div class="sec-title">SNOW / Incident Signal</div>
+      <div class="sec-badges">
+        <span class="badge badge-req">Required</span>
+        <span class="chevron" id="chev-4">▼</span>
+      </div>
+    </div>
+    <div class="section-body open" id="body-4">
+      <div class="grid3">
+        <div class="metric-card"><div class="mc-label">Tickets Opened *</div><input type="number" id="snow-opened" placeholder="0"></div>
+        <div class="metric-card"><div class="mc-label">Tickets Closed *</div><input type="number" id="snow-closed" placeholder="0"></div>
+        <div class="metric-card"><div class="mc-label">Tickets In Flight</div><input type="number" id="snow-flight" placeholder="0"></div>
+      </div>
+      <div class="field">
+        <label>Were there any P1 or escalation-risk incidents? <span class="req">*</span></label>
+        <div class="yn-group">
+          <button type="button" class="yn-btn" onclick="ynToggle(this,'p1','yes')">Yes</button>
+          <button type="button" class="yn-btn" onclick="ynToggle(this,'p1','no')">No</button>
+        </div>
+        <div class="cond-block" id="cond-p1">
+          <div class="cond-title">P1 / Escalation Details</div>
+          <div class="field"><label>What was the escalation or P1? <span class="req">*</span></label><textarea id="p1-what" placeholder="Describe the incident — what happened, who was impacted, and when it was identified…"></textarea></div>
+          <div class="field"><label>Current status <span class="req">*</span></label><textarea id="p1-status" placeholder="Is this resolved, in progress, or still open? What is the current state?"></textarea></div>
+          <div class="field"><label>Next steps <span class="req">*</span></label><textarea id="p1-next" placeholder="What actions are in flight? Who owns resolution? Are there any upcoming deadlines?"></textarea></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION F -->
+  <div class="section-card" data-section="5">
+    <div class="section-head" data-toggle="section" data-idx="5">
+      <div class="sec-letter">F</div>
+      <div class="sec-title">Health, Dependencies &amp; Escalation</div>
+      <div class="sec-badges">
+        <span class="badge badge-req">Required</span>
+        <span class="chevron" id="chev-5">▼</span>
+      </div>
+    </div>
+    <div class="section-body open" id="body-5">
+      <div class="health-defs">
+        <div class="health-def green"><div class="health-dot"></div><div class="health-def-text"><div class="hd-title">On Track (Green)</div><div class="hd-desc">Delivery is proceeding as planned. No unresolved blockers. Risks are known and managed. Team is expected to meet sprint and initiative commitments.</div></div></div>
+        <div class="health-def amber"><div class="health-dot"></div><div class="health-def-text"><div class="hd-title">At Risk (Amber)</div><div class="hd-desc">A dependency, blocker, or capacity issue exists that — if unresolved — could impact delivery. TPM awareness and possible action are needed.</div></div></div>
+        <div class="health-def red"><div class="health-dot"></div><div class="health-def-text"><div class="hd-title">Blocked (Red)</div><div class="hd-desc">Delivery is materially impacted. A committed date, release, or initiative is at risk. Escalation is likely required. Do not wait for this form — alert TPM immediately.</div></div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="field">
+        <label>Initiative Health &amp; Status <span class="req">*</span></label>
+        <p class="help-text" style="margin-bottom:10px">Rate each active initiative. Fields shown are based on health selected.</p>
+        <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+          <table class="init-table">
+            <thead><tr>
+              <th style="width:28%">Initiative</th>
+              <th style="width:12%">Health</th>
+              <th>Status Detail</th>
+            </tr></thead>
+            <tbody id="init-rows"></tbody>
+          </table>
+          <button type="button" class="add-row-btn" onclick="addInitRow()">+ Add initiative</button>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="field">
+        <label>Key Dependencies, Risks, or Blockers <span class="req">*</span></label>
+        <p class="help-text">"None at this time" is acceptable if accurate. Name the owner and resolution path.</p>
+        <textarea id="deps-risks" placeholder="Describe any active dependencies, risks, or blockers and who owns resolution…"></textarea>
+      </div>
+      <div class="divider"></div>
+      <div class="field">
+        <label>Help Needed from TPM or Leadership <span class="req">*</span></label>
+        <p class="help-text">Select the type of support needed — you may select more than one.</p>
+        <div class="tpm-btns" id="tpm-btns">
+          <button type="button" class="tpm-btn" data-cls="sel-action">Action Needed</button>
+          <button type="button" class="tpm-btn" data-cls="sel-decision">Decision Needed</button>
+          <button type="button" class="tpm-btn" data-cls="sel-unblock">Help to Unblock</button>
+          <button type="button" class="tpm-btn" data-cls="sel-fyi">FYI Only</button>
+          <button type="button" class="tpm-btn" data-cls="sel-none">None at This Time</button>
+        </div>
+        <textarea id="tpm-detail" placeholder="Describe what you need and by when…" style="margin-top:10px"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer-note">
+    <ul>
+      <li>This update feeds directly into leadership reporting — accuracy and honesty are more valuable than positive spin.</li>
+      <li>Health should reflect where the team is heading, not optimism about where it is right now.</li>
+      <li>If you are unsure whether something should be escalated — escalate. It is always better to over-communicate.</li>
+    </ul>
+  </div>
+
+  <div class="submit-section">
+    <div class="submit-note">
+      <strong>Before submitting:</strong> Make sure all required sections are complete. Your submission will be saved and visible to your TPM in the rollup dashboard immediately.
+    </div>
+    <button class="submit-btn" onclick="submitForm()" id="submit-btn">Submit Weekly Update</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ Update submitted successfully</div>
+
+</div><!-- /tab-form container -->
+</div><!-- /tab-form panel -->
+
+<!-- ═══════════════════════════════════════════
+     TAB: ANSWER QUALITY GUIDE
+════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-guide">
+<div class="container" style="max-width:780px">
+
+  <div class="guide-intro">
+    This guide shows what an <strong>Excellent</strong>, <strong>Good</strong>, and <strong>Weak</strong> answer looks like for every key field. Read this before filling in the form so you understand the standard expected — not just <em>what</em> to fill in, but <em>how</em>.
+  </div>
+
+  <!-- Section A -->
+  <div class="guide-section">
+    <div class="guide-section-header" data-toggle="guide">
+      <div class="guide-sec-letter">A</div>
+      <div class="guide-sec-title">BA &amp; Sprint Context</div>
+      <span class="guide-sec-chevron open">▼</span>
+    </div>
+    <div class="guide-section-body open">
+      <div class="qa-item">
+        <div class="qa-field-label">Primary initiative(s) supported this sprint</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">Patient portal refresh (Epic: COC-221) and Power BI dashboard for care transitions (Epic: COC-198). Supported Reporting &amp; Analytics and Data Engineering teams.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">Patient portal and BI dashboard work. Reporting &amp; Analytics team.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">Worked on a few things this sprint.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section B -->
+  <div class="guide-section">
+    <div class="guide-section-header" data-toggle="guide">
+      <div class="guide-sec-letter">B</div>
+      <div class="guide-sec-title">Sprint Run-Down</div>
+      <span class="guide-sec-chevron">▼</span>
+    </div>
+    <div class="guide-section-body">
+      <div class="qa-item">
+        <div class="qa-field-label">Story points &amp; completion %</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">32 committed, 28 completed (88%). The 4-point gap is carryover from COC-312 — blocked on a Dynamics/DOX infrastructure dependency. Not a capacity issue.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">28 of 32 points done. Some carryover due to a dependency.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">We did pretty well this sprint.</div></div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-field-label">Carryover — what and why</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">COC-312 (API integration for discharge module) carried over. Blocked on Dynamics/DOX infrastructure credential refresh since 4/22. Owner: J. Smith / Infra. Reason: Dependency — not a capacity or scope issue. Actions: TPM awareness requested; credential ticket submitted 4/22.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">The API ticket carried over because we were waiting on infra. Dependency issue.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">A few things carried over from last sprint.</div></div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-field-label">Happy carryover — what moved and why it's positive</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">Pulled COC-340 (acceptance criteria for care plan v2) forward into this sprint. The team had capacity after COC-312 stalled, so we front-loaded next sprint's discovery work. This sets up faster delivery in Sprint 43 and avoids a planning bottleneck.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">We worked ahead on some next sprint items since we had capacity. Helps us move faster next sprint.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">We got some extra things done.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section C -->
+  <div class="guide-section">
+    <div class="guide-section-header" data-toggle="guide">
+      <div class="guide-sec-letter">C</div>
+      <div class="guide-sec-title">Prior Sprint Outcomes</div>
+      <span class="guide-sec-chevron">▼</span>
+    </div>
+    <div class="guide-section-body">
+      <div class="qa-item">
+        <div class="qa-field-label">Key work delivered</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">• COC-289: Finalized and approved acceptance criteria for discharge summary integration (unblocks AppDev build in Sprint 43)<br>• COC-198: UAT completed and signed off for care transitions BI dashboard — first Q2 BI deliverable to reach sign-off<br>• COC-315: Discovery complete for care plan v2; user story backlog groomed with Data Engineering lead</div></div>
+        <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">• Finished acceptance criteria for discharge summary<br>• UAT done for the BI dashboard<br>• Started discovery on care plan v2</div></div>
+        <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">Worked on multiple things. Got a lot done this sprint.</div></div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-field-label">Biggest win — outcome focused</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">UAT sign-off on the care transitions dashboard — the first Reporting &amp; Analytics deliverable to reach production-ready status in Q2. Clinical stakeholder satisfaction was high; this directly unblocks the April 30 release and demonstrates the team's ability to deliver end-to-end.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">Got UAT completed and signed off for the dashboard. Stakeholders were happy and we're on track for the April 30 release.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">Finished the dashboard work.</div></div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-field-label">What to improve next sprint</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">Story sizing accuracy — three tickets were undersized and expanded mid-sprint, contributing to carryover and velocity variance. Recommend a 30-minute pre-sprint sizing review with the AppDev lead before next planning session to align on complexity before commitment.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">We need to get better at estimating story size before sprint planning. Will plan to review with the dev lead beforehand.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">Estimating was a little off this sprint.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section D -->
+  <div class="guide-section">
+    <div class="guide-section-header" data-toggle="guide">
+      <div class="guide-sec-letter">D</div>
+      <div class="guide-sec-title">Weekly Execution Breakdown</div>
+      <span class="guide-sec-chevron">▼</span>
+    </div>
+    <div class="guide-section-body">
+      <div class="qa-item">
+        <div class="qa-field-label">Work item description — In Progress</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">Finalized acceptance criteria for COC-318 (Discharge Summary integration) with Data Engineering lead and clinical stakeholder. Three open questions resolved; dev can begin build in Sprint 43. Next: Send AC doc for formal sign-off by Wed.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">Worked on acceptance criteria for the discharge summary story with the team. Almost done.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">AC work.</div></div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-field-label">Work item — Blocked</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">COC-312 is blocked — requires Dynamics/DOX API credentials from infrastructure team. Owner: J. Smith / Infra. SNOW ticket submitted 4/22 (SNOW-8821), no response received. If not resolved by 4/30 this will reduce sprint velocity by ~13% and push COC-312 to Sprint 43.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">Waiting on API credentials from infra (J. Smith). Ticket submitted 4/22. This could slow us down if not resolved soon.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">Still blocked on this one.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section E -->
+  <div class="guide-section">
+    <div class="guide-section-header" data-toggle="guide">
+      <div class="guide-sec-letter">E</div>
+      <div class="guide-sec-title">SNOW / Incident Signal</div>
+      <span class="guide-sec-chevron">▼</span>
+    </div>
+    <div class="guide-section-body">
+      <div class="qa-item">
+        <div class="qa-field-label">P1 / escalation — all three fields</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text"><strong>What:</strong> P1 opened 4/24 — care plan module unavailable in prod for ~2 hrs. Root cause: config drift post AppDev deploy.<br><strong>Status:</strong> Resolved 4/24 EOD. Fix validated by QA 4/25. No ongoing patient impact.<br><strong>Next steps:</strong> Post-mortem scheduled 5/1. Tech Enablement lead reviewing config change process to prevent recurrence.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">There was a P1 on 4/24 — care plan was down for about 2 hours. Root cause was a config issue after a deploy. Fixed same day. Post-mortem next week.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">P1 happened, resolved now.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section F -->
+  <div class="guide-section">
+    <div class="guide-section-header" data-toggle="guide">
+      <div class="guide-sec-letter">F</div>
+      <div class="guide-sec-title">Health, Dependencies &amp; Escalation</div>
+      <span class="guide-sec-chevron">▼</span>
+    </div>
+    <div class="guide-section-body">
+      <div class="qa-item">
+        <div class="qa-field-label">Initiative health — Green (On Track)</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">COC-198 BI Dashboard: On track. Final data validation with Data Engineering this week; pre-release smoke test scheduled for 4/29. No risks or blockers. Planned for next week: release execution and hypercare monitoring.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">BI dashboard is on track. Validating data next week then releasing.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">Green. On track.</div></div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-field-label">Initiative health — Amber (At Risk)</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text"><strong>At risk:</strong> COC-221 Patient Portal — API dependency on Dynamics/DOX unresolved since 4/22 (owner: J. Smith / Infra) blocks 2 stories (4 pts). <strong>To get green:</strong> Infra credentials needed by 4/30. If not received by Wed, sprint commitments will need to be replanned. <strong>Next week:</strong> Replan if credentials not received; escalate through TPM.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">Patient portal at risk because of an API dependency on infra. Need credentials from J. Smith by 4/30 to get back on track.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">Amber. Waiting on infra.</div></div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-field-label">Initiative health — Red (Blocked)</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text"><strong>Blocked:</strong> COC-305 Discharge Summary — Data Engineering pipeline failures blocking UAT entry since 4/21. Delivery impact: April 30 release must move to May 7 minimum. <strong>To unblock:</strong> DE team lead (R. Nguyen) must prioritize pipeline fix — TPM escalation requested today. Do not wait for Thursday update.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">Discharge summary is blocked. Data Engineering pipeline issue is preventing UAT from starting. Needs escalation.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">Red. Blocked on a data issue.</div></div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-field-label">Help needed from TPM — Action Needed</div>
+        <div class="qa-row"><span class="qa-badge qa-excellent">Excellent</span><div class="qa-text">Action Needed + Help to Unblock. Please escalate to R. Nguyen's manager regarding the Data Engineering pipeline fix (COC-305 / SNOW-8901). The team has raised it twice with no response. This is blocking UAT and will force the April 30 release to move if not resolved by 4/30 EOD. I can provide full impact summary if needed for the escalation.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-good">Good</span><div class="qa-text">Need you to escalate to the DE team lead to fix the pipeline. It's blocking UAT for COC-305.</div></div>
+        <div class="qa-row"><span class="qa-badge qa-weak">Weak</span><div class="qa-weak-text">Need help with a blocker.</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div><!-- /tab-guide -->
+
+<!-- ═══════════════════════════════════════════
+     TAB: REPORTING CHECKLIST
+════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-checklist">
+<div class="container" style="max-width:780px">
+
+  <div class="checklist-intro">
+    <div class="checklist-intro-icon">✓</div>
+    <p>Use this checklist every Thursday before submitting your update. Check off each item to confirm it has been completed to the expected standard — not just filled in, but answered with the quality the TPM needs to report up. Check items off as you go; they'll stay checked until you reset.</p>
+  </div>
+
+  <button type="button" class="reset-btn" onclick="resetChecklist()">↺ Reset all checkboxes</button>
+
+  <!-- Section A -->
+  <div class="cl-section">
+    <div class="cl-section-header">
+      <div class="cl-sec-letter">A</div>
+      <div class="cl-sec-title">BA &amp; Sprint Context</div>
+      <span class="cl-sec-badge cl-req">Required</span>
+    </div>
+    <ul class="cl-list">
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">BA name entered — full name, not initials</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Week ending date selected</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Sprint number entered</div><div class="cl-item-sub">e.g. "Sprint 42" — not just a number</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Sprint dates entered</div><div class="cl-item-sub">e.g. "Apr 21 – May 2"</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">At least one engineering team checked</div><div class="cl-item-sub">Dynamics/DOX/Tech Enablement · Data Engineering · Reporting &amp; Analytics · AppDev · Other</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Primary initiative(s) named — not just a team name</div><div class="cl-item-sub">Include the initiative name and epic ID if available</div></div></li>
+    </ul>
+  </div>
+
+  <!-- Section B -->
+  <div class="cl-section">
+    <div class="cl-section-header">
+      <div class="cl-sec-letter">B</div>
+      <div class="cl-sec-title">Sprint Run-Down</div>
+      <span class="cl-sec-badge cl-req">Required</span>
+    </div>
+    <ul class="cl-list">
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Story points committed entered — zero is valid, blank is not</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Story points completed entered — zero is valid, blank is not</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Carryover yes/no answered</div><div class="cl-item-sub">If Yes: what carried over is named, reason category selected, and context explains why it happened</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Happy carryover yes/no answered</div><div class="cl-item-sub">If Yes: what moved and why it is a positive outcome are both explained specifically</div></div></li>
+    </ul>
+  </div>
+
+  <!-- Section C -->
+  <div class="cl-section">
+    <div class="cl-section-header">
+      <div class="cl-sec-letter">C</div>
+      <div class="cl-sec-title">Prior Sprint Outcomes</div>
+      <span class="cl-sec-badge cl-req">Required</span>
+    </div>
+    <ul class="cl-list">
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Key work delivered — 1 to 3 bullets, deliverables not activities</div><div class="cl-item-sub">Bad: "worked on AC" · Good: "Finalized and approved AC for COC-289 — unblocks build in Sprint 43"</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Biggest win is outcome-focused, not task-focused</div><div class="cl-item-sub">Describe the impact and what it enables, not just what was completed</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Improvement focus is specific — names the behavior, process, or gap</div><div class="cl-item-sub">Bad: "estimating" · Good: "Story sizing — three tickets were undersized; recommend pre-sprint sizing review with dev lead"</div></div></li>
+    </ul>
+  </div>
+
+  <!-- Section D -->
+  <div class="cl-section">
+    <div class="cl-section-header">
+      <div class="cl-sec-letter">D</div>
+      <div class="cl-sec-title">Weekly Execution Breakdown</div>
+      <span class="cl-sec-badge cl-req">Required</span>
+    </div>
+    <ul class="cl-list">
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">3 to 5 meaningful work items listed — not a task list</div><div class="cl-item-sub">Focus on items with decisions, dependencies, or forward momentum</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Each item has a status selected</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Each item is linked to an epic, initiative, or issue</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Each item has a next step — even Completed items</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Blocked items include: what is blocking, who owns it, and delivery impact</div><div class="cl-item-sub">A blocked item with no owner or impact stated is not actionable</div></div></li>
+    </ul>
+  </div>
+
+  <!-- Section E -->
+  <div class="cl-section">
+    <div class="cl-section-header">
+      <div class="cl-sec-letter">E</div>
+      <div class="cl-sec-title">SNOW / Incident Signal</div>
+      <span class="cl-sec-badge cl-req">Required</span>
+    </div>
+    <ul class="cl-list">
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">SNOW tickets opened entered — zero is valid, blank is not</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">SNOW tickets closed entered — zero is valid, blank is not</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">P1 / escalation yes/no answered</div><div class="cl-item-sub">If Yes: all three fields completed — what happened, current status, and next steps with owners</div></div></li>
+    </ul>
+  </div>
+
+  <!-- Section F -->
+  <div class="cl-section">
+    <div class="cl-section-header">
+      <div class="cl-sec-letter">F</div>
+      <div class="cl-sec-title">Health, Dependencies &amp; Escalation</div>
+      <span class="cl-sec-badge cl-req">Required</span>
+    </div>
+    <ul class="cl-list">
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">At least one initiative rated in the health table</div><div class="cl-item-sub">Use the definitions — health reflects trajectory, not current optimism</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Green initiatives: planned next week is stated (or "no updates")</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Amber initiatives: all three fields complete — what is at risk, path to green with owner, and next week plan</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Red initiatives: what is blocked with delivery impact, and unblock owner and deadline stated</div><div class="cl-item-sub">Red = do not wait for Thursday — alert TPM immediately</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">Dependencies, risks, or blockers field completed — "None at this time" is acceptable if accurate</div><div class="cl-item-sub">Name the owner and resolution path for anything active</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">TPM help type selected — at least one button active</div></div></li>
+      <li class="cl-item"><input type="checkbox"><div class="cl-item-body"><div class="cl-item-label">TPM detail field completed with specifics of what is needed and by when</div><div class="cl-item-sub">"None at this time" is acceptable if you selected that button</div></div></li>
+    </ul>
+  </div>
+
+  <!-- Ad hoc card -->
+  <div class="adhoc-card">
+    <div class="adhoc-card-title">⚠ When to send an ad hoc update — do not wait for Thursday</div>
+    <div class="adhoc-item">A blocker puts a committed release date or sprint commitment at immediate risk</div>
+    <div class="adhoc-item">A P1 or escalation-risk incident is opened or remains unresolved</div>
+    <div class="adhoc-item">UAT cannot be completed before a planned release window</div>
+    <div class="adhoc-item">A cross-team dependency is unresolved and time-sensitive</div>
+    <div class="adhoc-item">An issue is likely to surface in a leadership or steering committee meeting</div>
+    <div class="adhoc-item">A scope change affects multiple teams or more than one sprint</div>
+    <div class="adhoc-item">A key stakeholder has been or is about to be affected and has not been informed</div>
+    <div class="adhoc-item">When in doubt — escalate. Over-communication is always safer than silence.</div>
+  </div>
+
+</div>
+</div><!-- /tab-checklist -->
+
+<script>
+(function() {
+'use strict';
+
+// ─── State ───────────────────────────────────────────────
+var workRowCount = 0;
+var initRowCount = 0;
+
+// ─── Tab switching ───────────────────────────────────────
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-nav-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById('tab-' + tabId);
+  if (panel) panel.classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ─── Section accordion ───────────────────────────────────
+function toggleSection(idx) {
+  var body = document.getElementById('body-' + idx);
+  var chev = document.getElementById('chev-' + idx);
+  if (!body) return;
+  var isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  if (chev) chev.classList.toggle('open', !isOpen);
+}
+
+// ─── Guide accordion ─────────────────────────────────────
+function toggleGuide(header) {
+  var body = header.nextElementSibling;
+  var chev = header.querySelector('.guide-sec-chevron');
+  if (!body) return;
+  var isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  if (chev) chev.classList.toggle('open', !isOpen);
+}
+
+// ─── Yes/No toggle ───────────────────────────────────────
+function ynToggle(btn, key, val) {
+  var group = btn.closest('.yn-group');
+  if (group) {
+    group.querySelectorAll('.yn-btn').forEach(function(b) {
+      b.classList.remove('yes', 'no');
+    });
+  }
+  btn.classList.add(val === 'yes' ? 'yes' : 'no');
+  var cond = document.getElementById('cond-' + key);
+  if (cond) cond.classList.toggle('show', val === 'yes');
+}
+
+// ─── Completion % ────────────────────────────────────────
+function calcPct() {
+  var c = parseFloat(document.getElementById('pts-c').value) || 0;
+  var d = parseFloat(document.getElementById('pts-d').value) || 0;
+  document.getElementById('pts-pct').value = c > 0 ? Math.round(d / c * 100) + '%' : '—';
+}
+
+// ─── Work rows ───────────────────────────────────────────
+function addWorkRow() {
+  var idx = workRowCount++;
+  var container = document.getElementById('work-rows');
+  var row = document.createElement('div');
+  row.className = 'work-row';
+  row.setAttribute('data-idx', idx);
+  var sel = document.createElement('select');
+  sel.id = 'work-status-' + idx;
+  sel.style.cssText = 'font-size:12px;padding:5px 8px';
+  sel.innerHTML = '<option value="">Status</option><option>Not Started</option><option>In Progress</option><option>Completed</option><option>Blocked</option>';
+  sel.addEventListener('change', function() { checkBlocked(this, idx); });
+  var inp1 = document.createElement('input');
+  inp1.type = 'text'; inp1.id = 'work-desc-' + idx;
+  inp1.placeholder = 'Describe the work item…';
+  inp1.style.cssText = 'font-size:12px;padding:5px 8px';
+  var inp2 = document.createElement('input');
+  inp2.type = 'text'; inp2.id = 'work-epic-' + idx;
+  inp2.placeholder = 'Epic / initiative…';
+  inp2.style.cssText = 'font-size:12px;padding:5px 8px';
+  var inp3 = document.createElement('input');
+  inp3.type = 'text'; inp3.id = 'work-next-' + idx;
+  inp3.placeholder = 'What’s next…';
+  inp3.style.cssText = 'font-size:12px;padding:5px 8px';
+  row.appendChild(sel);
+  row.appendChild(inp1);
+  row.appendChild(inp2);
+  row.appendChild(inp3);
+  container.appendChild(row);
+}
+
+function checkBlocked(sel, idx) {
+  if (sel.value === 'Blocked') {
+    var existing = document.getElementById('block-' + idx);
+    if (!existing) {
+      var bf = document.getElementById('block-details');
+      var d = document.createElement('div');
+      d.id = 'block-' + idx;
+      d.className = 'block-detail';
+      var lbl = document.createElement('label');
+      lbl.textContent = 'Blocker for row ' + (idx + 1) + ' — what is blocking progress?';
+      var ta = document.createElement('textarea');
+      ta.id = 'work-block-' + idx;
+      ta.placeholder = 'Describe the blocker and who owns resolution…';
+      d.appendChild(lbl);
+      d.appendChild(ta);
+      bf.appendChild(d);
+    }
+  }
+}
+
+// ─── Initiative rows ─────────────────────────────────────
+function addInitRow() {
+  var idx = initRowCount++;
+  var tbody = document.getElementById('init-rows');
+  var tr = document.createElement('tr');
+  tr.id = 'init-row-' + idx;
+
+  var td1 = document.createElement('td');
+  var nameInput = document.createElement('input');
+  nameInput.type = 'text';
+  nameInput.id = 'init-name-' + idx;
+  nameInput.placeholder = 'Initiative name…';
+  td1.appendChild(nameInput);
+
+  var td2 = document.createElement('td');
+  var healthSel = document.createElement('select');
+  healthSel.id = 'init-health-' + idx;
+  healthSel.style.cssText = 'font-size:12px;padding:5px 8px;width:100%';
+  healthSel.innerHTML = '<option value="">Select</option><option value="green">Green</option><option value="amber">Amber</option><option value="red">Red</option>';
+  healthSel.addEventListener('change', function() { initHealth(this, idx); });
+  td2.appendChild(healthSel);
+
+  var td3 = document.createElement('td');
+  td3.id = 'init-detail-' + idx;
+  td3.innerHTML = '<span style="font-size:11px;color:#82889B;font-style:italic">Select a health status</span>';
+
+  tr.appendChild(td1);
+  tr.appendChild(td2);
+  tr.appendChild(td3);
+  tbody.appendChild(tr);
+}
+
+function initHealth(sel, idx) {
+  var cell = document.getElementById('init-detail-' + idx);
+  var v = sel.value;
+  cell.innerHTML = '';
+  if (v === 'green') {
+    var lbl = document.createElement('div');
+    lbl.style.cssText = 'color:#007F91;font-size:10px;font-weight:700;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.4px';
+    lbl.textContent = 'On Track';
+    var ta = document.createElement('textarea');
+    ta.id = 'init-g-next-' + idx;
+    ta.style.cssText = 'font-size:12px;border-color:rgba(0,127,145,0.4);min-height:46px';
+    ta.placeholder = 'What is planned for next week (if anything)?';
+    cell.appendChild(lbl); cell.appendChild(ta);
+  } else if (v === 'amber') {
+    var lbl = document.createElement('div');
+    lbl.style.cssText = 'color:#7a5c00;font-size:10px;font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px';
+    lbl.textContent = 'At Risk — complete all three fields';
+    var ta1 = document.createElement('textarea');
+    ta1.id = 'init-a-risk-' + idx; ta1.style.cssText = 'font-size:12px;border-color:rgba(255,197,50,0.6);min-height:40px;margin-bottom:6px'; ta1.placeholder = 'What is at risk?';
+    var ta2 = document.createElement('textarea');
+    ta2.id = 'init-a-green-' + idx; ta2.style.cssText = 'font-size:12px;border-color:rgba(255,197,50,0.6);min-height:40px;margin-bottom:6px'; ta2.placeholder = 'What is needed to get back to green?';
+    var ta3 = document.createElement('textarea');
+    ta3.id = 'init-a-next-' + idx; ta3.style.cssText = 'font-size:12px;border-color:rgba(255,197,50,0.6);min-height:40px'; ta3.placeholder = 'What is planned for next week?';
+    cell.appendChild(lbl); cell.appendChild(ta1); cell.appendChild(ta2); cell.appendChild(ta3);
+  } else if (v === 'red') {
+    var lbl = document.createElement('div');
+    lbl.style.cssText = 'color:#E24301;font-size:10px;font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px';
+    lbl.textContent = 'Blocked — alert TPM immediately';
+    var ta1 = document.createElement('textarea');
+    ta1.id = 'init-r-block-' + idx; ta1.style.cssText = 'font-size:12px;border-color:rgba(226,67,1,0.4);min-height:40px;margin-bottom:6px'; ta1.placeholder = 'What is blocked? Delivery impact?';
+    var ta2 = document.createElement('textarea');
+    ta2.id = 'init-r-unblock-' + idx; ta2.style.cssText = 'font-size:12px;border-color:rgba(226,67,1,0.4);min-height:40px'; ta2.placeholder = 'What is needed to unblock? Who acts?';
+    cell.appendChild(lbl); cell.appendChild(ta1); cell.appendChild(ta2);
+  } else {
+    cell.innerHTML = '<span style="font-size:11px;color:#82889B;font-style:italic">Select a health status</span>';
+  }
+}
+
+// ─── TPM buttons ─────────────────────────────────────────
+function tpmToggle(btn, cls) {
+  var allCls = ['sel-action','sel-decision','sel-unblock','sel-fyi','sel-none'];
+  if (cls === 'sel-none') {
+    document.querySelectorAll('#tpm-btns .tpm-btn').forEach(function(b) {
+      allCls.forEach(function(c) { b.classList.remove(c); });
+    });
+    btn.classList.add('sel-none');
+  } else {
+    var noneBtn = document.querySelector('#tpm-btns .tpm-btn.sel-none');
+    if (noneBtn) noneBtn.classList.remove('sel-none');
+    btn.classList.toggle(cls);
+  }
+}
+
+// ─── Checklist ───────────────────────────────────────────
+function resetChecklist() {
+  document.querySelectorAll('.cl-item').forEach(function(item) {
+    var cb = item.querySelector('input[type=checkbox]');
+    if (cb) cb.checked = false;
+    item.classList.remove('checked');
+  });
+}
+
+// ─── Collect form data ────────────────────────────────────
+function collectFormData() {
+  var teams = Array.from(document.querySelectorAll('input[name="teams"]:checked')).map(function(c) { return c.value; });
+  var otherTeam = document.getElementById('teams-other').value;
+  if (otherTeam) teams.push('Other: ' + otherTeam);
+
+  var tpmSelected = Array.from(document.querySelectorAll('#tpm-btns .tpm-btn')).filter(function(b) {
+    return ['sel-action','sel-decision','sel-unblock','sel-fyi','sel-none'].some(function(c) { return b.classList.contains(c); });
+  }).map(function(b) { return b.textContent.trim(); });
+
+  var workItems = [];
+  document.querySelectorAll('.work-row').forEach(function(row) {
+    var idx = row.getAttribute('data-idx');
+    workItems.push({
+      status:  (document.getElementById('work-status-' + idx) || {}).value || '',
+      desc:    (document.getElementById('work-desc-' + idx) || {}).value || '',
+      epic:    (document.getElementById('work-epic-' + idx) || {}).value || '',
+      next:    (document.getElementById('work-next-' + idx) || {}).value || '',
+      blocker: (document.getElementById('work-block-' + idx) || {}).value || ''
+    });
+  });
+
+  var initiatives = [];
+  document.querySelectorAll('#init-rows tr').forEach(function(tr) {
+    var idx = tr.id.replace('init-row-', '');
+    var health = (document.getElementById('init-health-' + idx) || {}).value || '';
+    var entry = {
+      name:      (document.getElementById('init-name-' + idx) || {}).value || '',
+      health:    health,
+      nextWeek:  (document.getElementById('init-g-next-' + idx) || {}).value || '',
+      atRisk:    (document.getElementById('init-a-risk-' + idx) || {}).value || '',
+      toGreen:   (document.getElementById('init-a-green-' + idx) || {}).value || '',
+      amberNext: (document.getElementById('init-a-next-' + idx) || {}).value || '',
+      blocked:   (document.getElementById('init-r-block-' + idx) || {}).value || '',
+      unblock:   (document.getElementById('init-r-unblock-' + idx) || {}).value || ''
+    };
+    if (entry.name) initiatives.push(entry);
+  });
+
+  var coReasonEl = document.querySelector('input[name="co-reason"]:checked');
+
+  return {
+    submittedAt:        new Date().toISOString(),
+    baName:             (document.getElementById('ba-name') || {}).value || '',
+    weekEnding:         (document.getElementById('week-ending') || {}).value || '',
+    sprintNum:          (document.getElementById('sprint-num') || {}).value || '',
+    sprintDates:        (document.getElementById('sprint-dates') || {}).value || '',
+    teams:              teams,
+    primaryInitiatives: (document.getElementById('primary-initiatives') || {}).value || '',
+    ptsCommitted:       (document.getElementById('pts-c') || {}).value || '',
+    ptsCompleted:       (document.getElementById('pts-d') || {}).value || '',
+    pctComplete:        (document.getElementById('pts-pct') || {}).value || '',
+    hasCarryover:       !!(document.getElementById('cond-co') && document.getElementById('cond-co').classList.contains('show')),
+    coWhat:             (document.getElementById('co-what') || {}).value || '',
+    coReason:           coReasonEl ? coReasonEl.value : '',
+    coWhy:              (document.getElementById('co-why') || {}).value || '',
+    hasHappyCarryover:  !!(document.getElementById('cond-hco') && document.getElementById('cond-hco').classList.contains('show')),
+    hcoWhat:            (document.getElementById('hco-what') || {}).value || '',
+    hcoWhy:             (document.getElementById('hco-why') || {}).value || '',
+    keyDelivered:       (document.getElementById('key-delivered') || {}).value || '',
+    biggestWin:         (document.getElementById('biggest-win') || {}).value || '',
+    improve:            (document.getElementById('improve') || {}).value || '',
+    workItems:          workItems,
+    snowOpened:         (document.getElementById('snow-opened') || {}).value || '',
+    snowClosed:         (document.getElementById('snow-closed') || {}).value || '',
+    snowFlight:         (document.getElementById('snow-flight') || {}).value || '',
+    hasP1:              !!(document.getElementById('cond-p1') && document.getElementById('cond-p1').classList.contains('show')),
+    p1What:             (document.getElementById('p1-what') || {}).value || '',
+    p1Status:           (document.getElementById('p1-status') || {}).value || '',
+    p1Next:             (document.getElementById('p1-next') || {}).value || '',
+    initiatives:        initiatives,
+    depsRisks:          (document.getElementById('deps-risks') || {}).value || '',
+    tpmHelp:            tpmSelected,
+    tpmDetail:          (document.getElementById('tpm-detail') || {}).value || ''
+  };
+}
+
+// ─── Submit ───────────────────────────────────────────────
+var FLOW_URL = 'YOUR_POWER_AUTOMATE_URL_HERE';
+
+function submitForm() {
+  var btn = document.getElementById('submit-btn');
+  var baName     = (document.getElementById('ba-name') || {}).value || '';
+  var weekEnding = (document.getElementById('week-ending') || {}).value || '';
+  var sprintNum  = (document.getElementById('sprint-num') || {}).value || '';
+
+  baName = baName.trim();
+  sprintNum = sprintNum.trim();
+
+  if (!baName || !weekEnding || !sprintNum) {
+    alert('Please complete Section A (BA Name, Week Ending, and Sprint #) before submitting.');
+    return;
+  }
+
+  if (FLOW_URL === 'YOUR_POWER_AUTOMATE_URL_HERE') {
+    alert('Setup required: Paste your Power Automate URL into the FLOW_URL variable in this file. See the Setup Guide.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  var data = collectFormData();
+
+  fetch(FLOW_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(function(response) {
+    if (!response.ok) throw new Error('Server returned ' + response.status + ': ' + response.statusText);
+    return response;
+  })
+  .then(function() {
+    btn.textContent = '✓ Submitted';
+    var toast = document.getElementById('toast');
+    if (toast) { toast.style.display = 'block'; setTimeout(function() { toast.style.display = 'none'; }, 5000); }
+    document.querySelectorAll('.progress-step').forEach(function(s) { s.classList.add('done'); });
+  })
+  .catch(function(err) {
+    btn.disabled = false;
+    btn.textContent = 'Submit Weekly Update';
+    alert('Submission failed. Check your Power Automate URL and network connection.
+
+Error: ' + err.message);
+  });
+}
+
+// ─── Event listeners (attached on DOM ready) ─────────────
+document.addEventListener('DOMContentLoaded', function() {
+
+  // Tab navigation
+  document.querySelectorAll('.tab-nav-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var tabId = this.getAttribute('data-tab');
+      if (tabId) switchTab(tabId, this);
+    });
+  });
+
+  // Section accordions
+  document.querySelectorAll('[data-toggle="section"]').forEach(function(el) {
+    el.addEventListener('click', function() {
+      var idx = this.getAttribute('data-idx');
+      toggleSection(idx);
+    });
+  });
+
+  // Guide accordions
+  document.querySelectorAll('[data-toggle="guide"]').forEach(function(el) {
+    el.addEventListener('click', function() {
+      toggleGuide(this);
+    });
+  });
+
+  // Checklist items
+  document.querySelectorAll('.cl-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      var cb = this.querySelector('input[type=checkbox]');
+      if (cb) {
+        cb.checked = !cb.checked;
+        this.classList.toggle('checked', cb.checked);
+      }
+    });
+  });
+
+  // TPM buttons
+  document.querySelectorAll('.tpm-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var cls = this.getAttribute('data-cls');
+      if (cls) tpmToggle(this, cls);
+    });
+  });
+
+  // Init default rows
+  addWorkRow();
+  addWorkRow();
+  addInitRow();
+});
+
+// Expose functions needed by remaining inline handlers
+window.ynToggle    = ynToggle;
+window.calcPct     = calcPct;
+window.tpmToggle   = tpmToggle;
+window.addWorkRow  = addWorkRow;
+window.addInitRow  = addInitRow;
+window.switchTab   = switchTab;
+window.submitForm  = submitForm;
+window.resetChecklist = resetChecklist;
+
+})();
+</script>
+</body>
+</html>

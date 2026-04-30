@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoC Technology — TPM Rollup Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700;900&display=swap');
+
+  :root {
+    --navy:#103454; --navy-dark:#0a2238; --navy-mid:#174060; --navy-light:#1e5278;
+    --blue:#1797D7; --teal:#007F91; --teal-dim:#cceaed;
+    --yellow:#FFC532; --yellow-dim:#fff3d0;
+    --orange:#E24301; --orange-dim:#fbe0d5;
+    --grey:#82889B; --grey-light:#F8F8F8; --white:#ffffff;
+    --accent-dim:#e6f4fc;
+
+    --bg:#f0f4f8; --surface:var(--white); --surface2:var(--grey-light);
+    --surface3:#e8edf3; --border:#d0d8e4; --border2:#b0bccf;
+    --text:var(--navy); --text2:#3a5068; --text3:var(--grey);
+
+    --green:var(--teal); --green-dim:var(--teal-dim);
+    --amber:var(--yellow); --amber-dim:var(--yellow-dim);
+    --red:var(--orange); --red-dim:var(--orange-dim);
+    --purple:var(--blue); --purple-dim:var(--accent-dim);
+
+    --radius:8px; --radius-lg:12px;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter Tight',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+  .page-header{background:var(--navy);border-bottom:3px solid var(--blue);padding:18px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+  .header-left{display:flex;flex-direction:column;gap:2px}
+  .header-left h1{font-size:15px;font-weight:700;letter-spacing:-0.2px;color:var(--white)}
+  .header-left p{font-size:11px;color:rgba(255,255,255,0.55)}
+  .header-right{display:flex;align-items:center;gap:10px}
+  .refresh-btn{padding:7px 16px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);border-radius:var(--radius);font-size:12px;font-weight:600;color:var(--white);cursor:pointer;font-family:'Inter Tight',Arial,sans-serif;transition:all 0.15s}
+  .refresh-btn:hover{background:rgba(255,255,255,0.2)}
+
+  /* Filter bar */
+  .filter-bar{background:var(--white);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 1px 4px rgba(16,52,84,0.06)}
+  .filter-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--grey);white-space:nowrap}
+  .filter-divider{width:1px;height:20px;background:var(--border2);flex-shrink:0}
+  .filter-mode-btn{padding:5px 14px;border-radius:20px;border:1.5px solid var(--border2);font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--text3);font-family:'Inter Tight',Arial,sans-serif;transition:all 0.15s;white-space:nowrap}
+  .filter-mode-btn:hover{border-color:var(--blue);color:var(--blue)}
+  .filter-mode-btn.active{background:var(--accent-dim);color:var(--navy);border-color:var(--blue)}
+  .filter-input-group{display:flex;align-items:center;gap:8px}
+  .filter-sep{font-size:12px;color:var(--grey)}
+  .sprint-selector{padding:7px 12px;background:var(--white);border:1.5px solid var(--border2);border-radius:var(--radius);font-size:12px;font-weight:500;color:var(--text);font-family:'Inter Tight',Arial,sans-serif;cursor:pointer}
+  .sprint-selector:focus{border-color:var(--blue);outline:none}
+  .active-filter-pill{display:flex;align-items:center;gap:6px;padding:4px 10px;background:var(--accent-dim);border:1px solid var(--blue);border-radius:20px;font-size:11px;font-weight:600;color:var(--navy)}
+  .active-filter-pill button{background:none;border:none;cursor:pointer;color:var(--navy);font-size:12px;padding:0;line-height:1}
+  .active-filter-pill button:hover{color:var(--orange)}
+
+  .container{padding:20px 28px}
+
+  .loading{display:flex;align-items:center;justify-content:center;height:200px;color:var(--grey);font-size:13px;font-weight:500;gap:10px}
+  .spinner{width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .empty-state{display:none;text-align:center;padding:60px 20px;color:var(--grey)}
+  .empty-state h2{font-size:16px;color:var(--text2);margin-bottom:8px;font-weight:600}
+  .empty-state p{font-size:13px;line-height:1.6}
+
+  /* Summary bar */
+  .summary-bar{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px}
+  .sum-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:0 1px 4px rgba(16,52,84,0.06)}
+  .sum-label{font-size:10px;font-weight:700;color:var(--grey);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+  .sum-value{font-size:24px;font-weight:700;letter-spacing:-1px;line-height:1}
+  .sum-sub{font-size:11px;color:var(--grey);margin-top:4px}
+  .v-navy{color:var(--navy)} .v-blue{color:var(--blue)} .v-teal{color:var(--teal)}
+  .v-green{color:var(--teal)} .v-amber{color:#b88900} .v-red{color:var(--orange)}
+  .v-txt{color:var(--text)}
+
+  .dash-section{margin-bottom:22px}
+  .dash-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--grey);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between}
+
+  /* Health grid */
+  .health-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+  .health-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;display:flex;flex-direction:column;gap:7px;cursor:pointer;transition:box-shadow 0.15s;box-shadow:0 1px 4px rgba(16,52,84,0.06)}
+  .health-card:hover{box-shadow:0 3px 12px rgba(16,52,84,0.12)}
+  .health-card.green{border-left:3px solid var(--teal)}
+  .health-card.amber{border-left:3px solid var(--yellow)}
+  .health-card.red{border-left:3px solid var(--orange)}
+  .health-card .hc-top{display:flex;align-items:center;justify-content:space-between}
+  .health-card .hc-name{font-size:13px;font-weight:600;color:var(--navy)}
+  .health-card .hc-team{font-size:10px;color:var(--grey);font-weight:500}
+  .health-pill{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700}
+  .pill-green{background:var(--teal-dim);color:var(--teal);border:1px solid rgba(0,127,145,0.3)}
+  .pill-amber{background:var(--yellow-dim);color:#7a5c00;border:1px solid rgba(255,197,50,0.4)}
+  .pill-red{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(226,67,1,0.3)}
+  .pill-blue{background:var(--accent-dim);color:var(--navy);border:1px solid rgba(23,151,215,0.3)}
+  .health-card .hc-detail{font-size:11px;color:var(--text2);line-height:1.5}
+
+  /* BA table */
+  .ba-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:0 1px 4px rgba(16,52,84,0.06)}
+  .ba-table{width:100%;border-collapse:collapse;font-size:12px}
+  .ba-table th{background:var(--navy);padding:10px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:rgba(255,255,255,0.8);border-bottom:1px solid var(--navy-light);white-space:nowrap}
+  .ba-table td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text);background:var(--white)}
+  .ba-table tr:last-child td{border-bottom:none}
+  .ba-table tr:hover td{background:var(--grey-light)}
+
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .dot-green{background:var(--teal)} .dot-amber{background:var(--yellow)} .dot-red{background:var(--orange)}
+
+  /* Escalation banner */
+  .escalation-banner{background:var(--orange-dim);border:1px solid rgba(226,67,1,0.3);border-radius:var(--radius);padding:14px 18px;margin-bottom:18px;display:flex;align-items:flex-start;gap:12px}
+  .esc-icon{color:var(--orange);font-size:14px;flex-shrink:0;margin-top:1px}
+  .esc-body{flex:1}
+  .esc-title{font-size:12px;font-weight:700;color:var(--orange);margin-bottom:4px}
+  .esc-item{font-size:12px;color:var(--text2);line-height:1.6}
+
+  /* TPM needs */
+  .tpm-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;box-shadow:0 1px 4px rgba(16,52,84,0.04)}
+  .tpm-row-left{flex:0 0 160px}
+  .tpm-row-left .tpm-ba{font-size:13px;font-weight:600;color:var(--navy)}
+  .tpm-row-left .tpm-sprint{font-size:10px;color:var(--grey);font-weight:500}
+  .tpm-row-right{flex:1}
+  .tpm-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+  .tpm-tag{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700}
+  .tag-action{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(226,67,1,0.3)}
+  .tag-decision{background:var(--yellow-dim);color:#7a5c00;border:1px solid rgba(255,197,50,0.4)}
+  .tag-unblock{background:var(--accent-dim);color:var(--navy);border:1px solid rgba(23,151,215,0.3)}
+  .tag-fyi{background:var(--teal-dim);color:var(--teal);border:1px solid rgba(0,127,145,0.3)}
+  .tag-none{background:var(--grey-light);color:var(--grey);border:1px solid var(--border2)}
+  .tpm-detail-text{font-size:12px;color:var(--text2);line-height:1.5}
+
+  /* Sprint metrics */
+  .sprint-metrics-table{width:100%;border-collapse:collapse;border:1px solid var(--border);overflow:hidden;font-size:12px}
+  .sprint-metrics-table th{background:var(--navy);padding:8px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:rgba(255,255,255,0.8);border-bottom:1px solid var(--navy-light)}
+  .sprint-metrics-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text);background:var(--white)}
+  .sprint-metrics-table tr:last-child td{border-bottom:none}
+  .sprint-metrics-table tr:hover td{background:var(--grey-light)}
+  .pct-bar{display:flex;align-items:center;gap:8px}
+  .pct-track{flex:1;height:4px;background:var(--border2);border-radius:2px}
+  .pct-fill{height:4px;border-radius:2px;transition:width 0.3s}
+
+  /* SNOW */
+  .snow-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+  .snow-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:0 1px 4px rgba(16,52,84,0.06)}
+  .snow-ba{font-size:12px;font-weight:600;color:var(--navy);margin-bottom:8px}
+  .snow-nums{display:flex;gap:12px}
+  .snow-num{display:flex;flex-direction:column;gap:2px}
+  .snow-num .sn-val{font-size:18px;font-weight:700;line-height:1}
+  .snow-num .sn-lbl{font-size:10px;font-weight:600;color:var(--grey);text-transform:uppercase;letter-spacing:0.4px}
+  .sn-opened{color:#b88900} .sn-closed{color:var(--teal)} .sn-flight{color:var(--blue)}
+
+  /* Wins */
+  .wins-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+  .wins-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:var(--radius);padding:13px 15px;box-shadow:0 1px 4px rgba(16,52,84,0.06)}
+
+  /* Drawer */
+  .expand-row{display:none}
+  .expand-inner{padding:14px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;font-size:12px;background:var(--grey-light)}
+  .ei-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--grey);margin-bottom:4px}
+  .ei-val{color:var(--text2);line-height:1.5}
+
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="header-left">
+    <h1>CoC Technology — TPM Rollup Dashboard</h1>
+    <p id="last-updated">Loading submissions…</p>
+  </div>
+  <div class="header-right">
+    <button class="refresh-btn" onclick="loadDashboard()">↻ Refresh</button>
+  </div>
+</div>
+
+<div class="filter-bar" id="filter-bar">
+  <span class="filter-label">Filter by</span>
+
+  <button class="filter-mode-btn active" id="mode-sprint" onclick="setFilterMode('sprint')">Sprint</button>
+  <button class="filter-mode-btn" id="mode-date" onclick="setFilterMode('date')">Date range</button>
+  <button class="filter-mode-btn" id="mode-week" onclick="setFilterMode('week')">Week ending</button>
+
+  <div class="filter-divider"></div>
+
+  <div class="filter-input-group" id="group-sprint">
+    <select class="sprint-selector" id="sprint-filter" onchange="applyFilters()">
+      <option value="">All sprints</option>
+    </select>
+  </div>
+
+  <div class="filter-input-group" id="group-date" style="display:none">
+    <span class="filter-label">From</span>
+    <input type="date" id="date-from" class="sprint-selector" onchange="applyFilters()" style="cursor:pointer">
+    <span class="filter-sep">→</span>
+    <span class="filter-label">To</span>
+    <input type="date" id="date-to" class="sprint-selector" onchange="applyFilters()" style="cursor:pointer">
+  </div>
+
+  <div class="filter-input-group" id="group-week" style="display:none">
+    <select class="sprint-selector" id="week-filter" onchange="applyFilters()">
+      <option value="">All weeks</option>
+    </select>
+  </div>
+
+  <div id="active-filter-display" style="margin-left:4px"></div>
+
+  <button class="filter-mode-btn" id="clear-btn" onclick="clearFilters()" style="display:none;color:var(--red);border-color:rgba(242,87,87,0.4)">✕ Clear</button>
+</div>
+
+<div class="container" id="main-container">
+  <div class="loading" id="loading-state">
+    <div class="spinner"></div>
+    Loading BA submissions…
+  </div>
+  <div class="empty-state" id="empty-state">
+    <h2>No submissions yet</h2>
+    <p>When your BAs submit their weekly updates using the BA form,<br>they will appear here automatically.</p>
+  </div>
+  <div id="dashboard-content" style="display:none"></div>
+</div>
+
+<script>
+let allSubmissions = [];
+let filteredSubmissions = [];
+
+// ─────────────────────────────────────────────────────────────────
+// POWER AUTOMATE READ ENDPOINT
+// Paste your "Get Submissions" Power Automate HTTP trigger URL below.
+// See the Setup Guide for step-by-step instructions.
+// ─────────────────────────────────────────────────────────────────
+const READ_FLOW_URL = 'YOUR_READ_FLOW_URL_HERE';
+
+async function loadDashboard() {
+  document.getElementById('loading-state').style.display = 'flex';
+  document.getElementById('dashboard-content').style.display = 'none';
+  document.getElementById('empty-state').style.display = 'none';
+
+  if (READ_FLOW_URL === 'YOUR_READ_FLOW_URL_HERE') {
+    document.getElementById('loading-state').innerHTML =
+      '<div style="text-align:center;max-width:460px">' +
+        '<div style="font-size:28px;margin-bottom:12px">⚙️</div>' +
+        '<div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:8px">Setup required</div>' +
+        '<div style="font-size:13px;color:var(--text2);line-height:1.7">Paste your Power Automate <strong>Read</strong> flow URL into the <code>READ_FLOW_URL</code> variable at the top of the script block in this file. See the <strong>Setup Guide</strong> for full instructions.</div>' +
+      '</div>';
+    return;
+  }
+
+  try {
+    const response = await fetch(READ_FLOW_URL, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (!response.ok) throw new Error('Server returned ' + response.status + ': ' + response.statusText);
+
+    const json = await response.json();
+    // Power Automate returns { submissions: [...] } or a direct array
+    const raw = Array.isArray(json) ? json : (json.submissions || json.value || []);
+
+    const submissions = raw.map(item => {
+      // If stored as a JSON string in a SharePoint column, parse it
+      try {
+        return typeof item.SubmissionData === 'string' ? JSON.parse(item.SubmissionData) : item;
+      } catch(e) {
+        return item;
+      }
+    });
+
+    allSubmissions = submissions.sort((a,b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+
+    // Populate sprint filter
+    const sprints = [...new Set(allSubmissions.map(s => s.sprintNum).filter(Boolean))];
+    const sel = document.getElementById('sprint-filter');
+    sel.innerHTML = '<option value="">All sprints</option>';
+    sprints.forEach(sp => {
+      const opt = document.createElement('option');
+      opt.value = sp; opt.textContent = sp;
+      sel.appendChild(opt);
+    });
+
+    // Populate week-ending filter
+    const weeks = [...new Set(allSubmissions.map(s => s.weekEnding).filter(Boolean))].sort().reverse();
+    const wsel = document.getElementById('week-filter');
+    wsel.innerHTML = '<option value="">All weeks</option>';
+    weeks.forEach(w => {
+      const opt = document.createElement('option');
+      opt.value = w; opt.textContent = 'Week ending ' + fmt(w);
+      wsel.appendChild(opt);
+    });
+
+    filteredSubmissions = allSubmissions;
+    renderDashboard();
+
+  } catch(err) {
+    document.getElementById('loading-state').innerHTML =
+      '<div style="text-align:center;color:var(--orange)">' +
+        '<div style="font-size:24px;margin-bottom:8px">⚠</div>' +
+        '<div style="font-size:13px;font-weight:700">Failed to load submissions</div>' +
+        '<div style="font-size:12px;color:var(--text2);margin-top:6px">' + err.message + '</div>' +
+        '<button onclick="loadDashboard()" style="margin-top:14px;padding:8px 18px;background:var(--navy);color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600">Retry</button>' +
+      '</div>';
+  }
+}
+
+let currentFilterMode = 'sprint';
+
+function setFilterMode(mode) {
+  currentFilterMode = mode;
+  document.querySelectorAll('.filter-mode-btn[id^="mode-"]').forEach(b => b.classList.remove('active'));
+  document.getElementById('mode-' + mode).classList.add('active');
+  document.getElementById('group-sprint').style.display = mode === 'sprint' ? 'flex' : 'none';
+  document.getElementById('group-date').style.display  = mode === 'date'   ? 'flex' : 'none';
+  document.getElementById('group-week').style.display  = mode === 'week'   ? 'flex' : 'none';
+  applyFilters();
+}
+
+function applyFilters() {
+  let subs = allSubmissions;
+  let label = '';
+
+  if (currentFilterMode === 'sprint') {
+    const val = document.getElementById('sprint-filter').value;
+    if (val) { subs = subs.filter(s => s.sprintNum === val); label = val; }
+
+  } else if (currentFilterMode === 'date') {
+    const from = document.getElementById('date-from').value;
+    const to   = document.getElementById('date-to').value;
+    if (from || to) {
+      subs = subs.filter(s => {
+        const d = s.weekEnding || s.submittedAt?.substring(0,10);
+        if (!d) return true;
+        if (from && d < from) return false;
+        if (to   && d > to)   return false;
+        return true;
+      });
+      label = (from && to) ? `${fmt(from)} → ${fmt(to)}` : from ? `From ${fmt(from)}` : `To ${fmt(to)}`;
+    }
+
+  } else if (currentFilterMode === 'week') {
+    const val = document.getElementById('week-filter').value;
+    if (val) { subs = subs.filter(s => s.weekEnding === val); label = `Week ending ${fmt(val)}`; }
+  }
+
+  filteredSubmissions = subs;
+
+  // Active filter pill
+  const disp = document.getElementById('active-filter-display');
+  const clr  = document.getElementById('clear-btn');
+  if (label) {
+    disp.innerHTML = `<div class="active-filter-pill"><span>${label}</span><button onclick="clearFilters()">✕</button></div>`;
+    clr.style.display = 'none';
+  } else {
+    disp.innerHTML = '';
+    clr.style.display = 'none';
+  }
+
+  renderDashboard();
+}
+
+function clearFilters() {
+  document.getElementById('sprint-filter').value = '';
+  document.getElementById('date-from').value = '';
+  document.getElementById('date-to').value = '';
+  document.getElementById('week-filter').value = '';
+  document.getElementById('active-filter-display').innerHTML = '';
+  document.getElementById('clear-btn').style.display = 'none';
+  filteredSubmissions = allSubmissions;
+  renderDashboard();
+}
+
+function fmt(dateStr) {
+  if (!dateStr) return '';
+  const [y,m,d] = dateStr.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${months[parseInt(m,10)-1]} ${parseInt(d,10)}, ${y}`;
+}
+
+function renderDashboard() {
+  document.getElementById('loading-state').style.display = 'none';
+  const subs = filteredSubmissions;
+
+  if (subs.length === 0) {
+    document.getElementById('empty-state').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('dashboard-content').style.display = 'block';
+
+  const totalPtsC = subs.reduce((a,s) => a + (parseFloat(s.ptsCommitted)||0), 0);
+  const totalPtsD = subs.reduce((a,s) => a + (parseFloat(s.ptsCompleted)||0), 0);
+  const pct = totalPtsC > 0 ? Math.round(totalPtsD/totalPtsC*100) : 0;
+  const snowOpened = subs.reduce((a,s) => a + (parseFloat(s.snowOpened)||0), 0);
+  const snowClosed = subs.reduce((a,s) => a + (parseFloat(s.snowClosed)||0), 0);
+
+  const allInitiatives = subs.flatMap(s => (s.initiatives||[]).map(i => ({...i, baName:s.baName, sprintNum:s.sprintNum})));
+  const redCount = allInitiatives.filter(i => i.health==='red').length;
+  const amberCount = allInitiatives.filter(i => i.health==='amber').length;
+  const greenCount = allInitiatives.filter(i => i.health==='green').length;
+
+  const p1Subs = subs.filter(s => s.hasP1);
+  const actionNeeded = subs.filter(s => s.tpmHelp && s.tpmHelp.some(h => h.includes('Action') || h.includes('Decision') || h.includes('Unblock')));
+
+  let html = '';
+
+  // Escalation banner
+  if (p1Subs.length > 0 || redCount > 0) {
+    html += `<div class="escalation-banner">
+      <div class="esc-icon">⚠</div>
+      <div class="esc-body">
+        <div class="esc-title">Attention Required — ${p1Subs.length + redCount} item(s) need immediate review</div>`;
+    p1Subs.forEach(s => {
+      html += `<div class="esc-item">P1/Escalation — ${s.baName}: ${s.p1What?.substring(0,120) || ''}…</div>`;
+    });
+    allInitiatives.filter(i=>i.health==='red').forEach(i => {
+      html += `<div class="esc-item">Blocked initiative — ${i.baName} / ${i.name}: ${(i.blocked||'').substring(0,100)}…</div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // Summary bar
+  html += `<div class="summary-bar">
+    <div class="sum-card"><div class="sum-label">BAs Submitted</div><div class="sum-value val-purple">${subs.length}</div><div class="sum-sub">of 7 expected</div></div>
+    <div class="sum-card"><div class="sum-label">Sprint Velocity</div><div class="sum-value val-text">${pct}%</div><div class="sum-sub">${totalPtsD}/${totalPtsC} pts</div></div>
+    <div class="sum-card"><div class="sum-label">Blocked</div><div class="sum-value ${redCount>0?'val-red':'val-green'}">${redCount}</div><div class="sum-sub">initiatives</div></div>
+    <div class="sum-card"><div class="sum-label">At Risk</div><div class="sum-value ${amberCount>0?'val-amber':'val-green'}">${amberCount}</div><div class="sum-sub">initiatives</div></div>
+    <div class="sum-card"><div class="sum-label">SNOW Opened</div><div class="sum-value val-amber">${snowOpened}</div><div class="sum-sub">${snowClosed} closed</div></div>
+    <div class="sum-card"><div class="sum-label">Action Needed</div><div class="sum-value ${actionNeeded.length>0?'val-red':'val-green'}">${actionNeeded.length}</div><div class="sum-sub">TPM items</div></div>
+  </div>`;
+
+  // Health grid
+  if (allInitiatives.length > 0) {
+    html += `<div class="dash-section"><div class="dash-section-title"><span>Initiative Health (${allInitiatives.length} total)</span><span>${greenCount} green · ${amberCount} amber · ${redCount} blocked</span></div>
+    <div class="health-grid">`;
+    allInitiatives.forEach(i => {
+      const cls = i.health || 'green';
+      const pillCls = `pill-${cls}`;
+      let detail = '';
+      if (cls==='green') detail = i.nextWeek || 'No updates noted';
+      if (cls==='amber') detail = i.atRisk || '';
+      if (cls==='red') detail = i.blocked || '';
+      html += `<div class="health-card ${cls}">
+        <div class="hc-top">
+          <div class="hc-name">${i.name||'Unnamed initiative'}</div>
+          <span class="health-pill ${pillCls}">${cls.toUpperCase()}</span>
+        </div>
+        <div class="hc-team">${i.baName} · ${i.sprintNum||''}</div>
+        <div class="hc-detail">${detail.substring(0,120)}${detail.length>120?'…':''}</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // TPM action items
+  const tpmItems = subs.filter(s => s.tpmHelp && s.tpmHelp.length > 0 && !s.tpmHelp.every(h=>h.includes('None')));
+  if (tpmItems.length > 0) {
+    html += `<div class="dash-section"><div class="dash-section-title">TPM Action Items &amp; FYIs</div>`;
+    tpmItems.forEach(s => {
+      const tags = s.tpmHelp || [];
+      const tagHtml = tags.map(t => {
+        let cls = 'tag-fyi';
+        if (t.includes('Action')) cls='tag-action';
+        else if (t.includes('Decision')) cls='tag-decision';
+        else if (t.includes('Unblock')) cls='tag-unblock';
+        else if (t.includes('None')) cls='tag-none';
+        return `<span class="tpm-tag ${cls}">${t}</span>`;
+      }).join('');
+      html += `<div class="tpm-row">
+        <div class="tpm-row-left">
+          <div class="tpm-ba">${s.baName}</div>
+          <div class="tpm-sprint">${s.sprintNum||''}</div>
+        </div>
+        <div class="tpm-row-right">
+          <div class="tpm-tags">${tagHtml}</div>
+          <div class="tpm-detail-text">${s.tpmDetail||'No detail provided.'}</div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // BA sprint metrics table
+  html += `<div class="dash-section"><div class="dash-section-title">Sprint Metrics by BA</div>
+    <div class="ba-table-wrap"><table class="ba-table"><thead><tr>
+      <th>BA</th><th>Sprint</th><th>Teams</th><th>Pts Committed</th><th>Pts Completed</th><th>Velocity</th><th>Carryover</th><th>P1?</th><th>Health</th>
+    </tr></thead><tbody>`;
+
+  subs.forEach((s,idx) => {
+    const ptsC = parseFloat(s.ptsCommitted)||0;
+    const ptsD = parseFloat(s.ptsCompleted)||0;
+    const pctV = ptsC > 0 ? Math.round(ptsD/ptsC*100) : 0;
+    const pctColor = pctV >= 90 ? 'var(--green)' : pctV >= 70 ? 'var(--amber)' : 'var(--red)';
+    const teams = (s.teams||[]).join(', ');
+    const healthCounts = (s.initiatives||[]).reduce((acc,i)=>{ acc[i.health]=(acc[i.health]||0)+1; return acc; }, {});
+    const healthSummary = Object.entries(healthCounts).map(([k,v])=>`<span class="dot dot-${k}"></span> ${v}`).join(' ');
+
+    html += `<tr style="cursor:pointer" onclick="toggleDrawer(${idx})">
+      <td style="font-weight:500">${s.baName}</td>
+      <td style="font-family:'Inter Tight',Arial,sans-serif;color:var(--text3)">${s.sprintNum||'—'}</td>
+      <td style="color:var(--text2);font-size:11px">${teams||'—'}</td>
+      <td style="font-family:'Inter Tight',Arial,sans-serif">${ptsC||'—'}</td>
+      <td style="font-family:'Inter Tight',Arial,sans-serif">${ptsD||'—'}</td>
+      <td>
+        <div class="pct-bar">
+          <div class="pct-track"><div class="pct-fill" style="width:${pctV}%;background:${pctColor}"></div></div>
+          <span style="font-size:11px;font-family:'Inter Tight',Arial,sans-serif;color:${pctColor};min-width:36px">${pctV}%</span>
+        </div>
+      </td>
+      <td>${s.hasCarryover ? `<span style="color:var(--amber)">Yes</span>` : `<span style="color:var(--text3)">No</span>`}</td>
+      <td>${s.hasP1 ? `<span style="color:var(--red)">⚠ Yes</span>` : `<span style="color:var(--text3)">No</span>`}</td>
+      <td>${healthSummary||'—'}</td>
+    </tr>
+    <tr id="drawer-${idx}" style="display:none">
+      <td colspan="9" style="padding:0">
+        <div style="padding:16px;background:var(--surface2);border-top:1px solid var(--border)">
+          ${renderDrawer(s)}
+        </div>
+      </td>
+    </tr>`;
+  });
+
+  html += `</tbody></table></div></div>`;
+
+  // SNOW breakdown
+  html += `<div class="dash-section"><div class="dash-section-title">SNOW Signal by BA</div><div class="snow-grid">`;
+  subs.forEach(s => {
+    const hasP1 = s.hasP1;
+    html += `<div class="snow-card">
+      <div class="snow-ba">${s.baName} <span style="font-size:10px;color:var(--text3);font-family:'Inter Tight',Arial,sans-serif">${s.sprintNum||''}</span></div>
+      <div class="snow-nums">
+        <div class="snow-num"><span class="sn-val sn-opened">${s.snowOpened||0}</span><span class="sn-lbl">Opened</span></div>
+        <div class="snow-num"><span class="sn-val sn-closed">${s.snowClosed||0}</span><span class="sn-lbl">Closed</span></div>
+        <div class="snow-num"><span class="sn-val sn-flight">${s.snowFlight||0}</span><span class="sn-lbl">In Flight</span></div>
+      </div>
+      ${hasP1 ? `<div style="margin-top:8px;font-size:10px;color:var(--red);background:var(--orange-dim);padding:4px 8px;border-radius:4px;font-family:'Inter Tight',Arial,sans-serif">P1 / ESCALATION</div>`:''}
+    </div>`;
+  });
+  html += `</div></div>`;
+
+  // Wins & improvements
+  html += `<div class="dash-section"><div class="dash-section-title">Wins &amp; Improvement Focus</div><div class="health-grid">`;
+  subs.forEach(s => {
+    html += `<div class="health-card" style="border-left-color:var(--purple)">
+      <div class="hc-top"><div class="hc-name">${s.baName}</div><span class="health-pill pill-blue">${s.sprintNum||''}</span></div>
+      <div class="hc-detail" style="color:var(--green)">Win: ${(s.biggestWin||'').substring(0,90)}${(s.biggestWin||'').length>90?'…':''}</div>
+      <div class="hc-detail" style="color:var(--amber);margin-top:4px">Focus: ${(s.improve||'').substring(0,90)}${(s.improve||'').length>90?'…':''}</div>
+    </div>`;
+  });
+  html += `</div></div>`;
+
+  document.getElementById('dashboard-content').innerHTML = html;
+  const filterDesc = filteredSubmissions.length < allSubmissions.length
+    ? `${subs.length} of ${allSubmissions.length} submissions (filtered)`
+    : `${subs.length} submissions`;
+  document.getElementById('last-updated').textContent = `${filterDesc} · Last refreshed ${new Date().toLocaleTimeString()}`;
+}
+
+function renderDrawer(s) {
+  let h = `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:12px">`;
+  h += `<div><div style="font-size:10px;font-family:'Inter Tight',Arial,sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Key Work Delivered</div><div style="font-size:12px;color:var(--text2);line-height:1.5;white-space:pre-line">${s.keyDelivered||'—'}</div></div>`;
+  h += `<div><div style="font-size:10px;font-family:'Inter Tight',Arial,sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Biggest Win</div><div style="font-size:12px;color:var(--green);line-height:1.5">${s.biggestWin||'—'}</div></div>`;
+  h += `<div><div style="font-size:10px;font-family:'Inter Tight',Arial,sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Dependencies / Risks</div><div style="font-size:12px;color:var(--text2);line-height:1.5">${s.depsRisks||'—'}</div></div>`;
+  h += `</div>`;
+  if (s.hasCarryover && s.coWhat) {
+    h += `<div style="margin-top:10px;padding:10px 12px;background:var(--yellow-dim);border-radius:var(--radius);border:1px solid rgba(245,166,35,0.2)"><span style="font-size:10px;font-family:'Inter Tight',Arial,sans-serif;color:var(--amber);text-transform:uppercase;letter-spacing:0.5px">Carryover</span><p style="font-size:12px;color:var(--text2);margin-top:4px;line-height:1.5">${s.coWhat} — Reason: ${s.coReason||'not specified'}</p></div>`;
+  }
+  if (s.hasP1 && s.p1What) {
+    h += `<div style="margin-top:10px;padding:10px 12px;background:var(--orange-dim);border-radius:var(--radius);border:1px solid rgba(242,87,87,0.2)"><span style="font-size:10px;font-family:'Inter Tight',Arial,sans-serif;color:var(--red);text-transform:uppercase;letter-spacing:0.5px">P1 / Escalation</span><p style="font-size:12px;color:var(--text2);margin-top:4px;line-height:1.5">${s.p1What}</p><p style="font-size:12px;color:var(--text3);margin-top:4px">Status: ${s.p1Status} | Next: ${s.p1Next}</p></div>`;
+  }
+  if (s.workItems && s.workItems.length > 0) {
+    h += `<div style="margin-top:12px"><div style="font-size:10px;font-family:'Inter Tight',Arial,sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Work Items This Week</div>`;
+    s.workItems.filter(w=>w.desc).forEach(w => {
+      const statusColor = w.status==='Completed'?'var(--green)':w.status==='Blocked'?'var(--red)':w.status==='In Progress'?'var(--blue)':'var(--text3)';
+      h += `<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;align-items:flex-start">
+        <span style="color:${statusColor};min-width:80px;font-family:'Inter Tight',Arial,sans-serif;font-size:10px;margin-top:2px">${w.status||'—'}</span>
+        <span style="flex:1;color:var(--text2)">${w.desc}</span>
+        <span style="color:var(--text3);font-size:11px;min-width:120px">${w.epic||''}</span>
+      </div>`;
+    });
+    h += `</div>`;
+  }
+  return h;
+}
+
+function toggleDrawer(idx) {
+  const row = document.getElementById('drawer-' + idx);
+  if (row) row.style.display = row.style.display === 'none' ? '' : 'none';
+}
+
+window.addEventListener('DOMContentLoaded', loadDashboard);
+</script>
+</body>
+</html>

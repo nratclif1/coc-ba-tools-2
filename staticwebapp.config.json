@@ -1,0 +1,14 @@
+{
+  "navigationFallback": {
+    "rewrite": "/ba_weekly_form.html"
+  },
+  "globalHeaders": {
+    "Access-Control-Allow-Origin": "*",
+    "X-Frame-Options": "ALLOWALL",
+    "Content-Security-Policy": "frame-ancestors *"
+  },
+  "mimeTypes": {
+    ".html": "text/html",
+    ".json": "application/json"
+  }
+}
