@@ -1151,7 +1151,7 @@ function submitForm() {
     alert('Please complete Section A before submitting.');
     return;
   }
-  if (FLOW_URL === 'https://defaultb110eddf23ae457ca6f3734d592b28.47.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/526d041d37ba43b98e9b894450bc6716/triggers/manual/paths/invoke?api-version=1') {
+  if (!FLOW_URL || FLOW_URL.indexOf('powerautomate') === -1 && FLOW_URL.indexOf('logic.azure') === -1) {
     alert('Setup required: paste your Power Automate URL into the FLOW_URL variable in this file.');
     return;
   }
