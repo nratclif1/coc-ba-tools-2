@@ -252,21 +252,28 @@ function loadDashboard() {
     "&$orderby=SubmittedAt%20desc" +
     "&$top=100";
 
-  fetch(apiUrl, {
-    method: 'GET',
-    headers: {
-      'Accept': 'application/json;odata=verbose',
-      'Content-Type': 'application/json'
-    },
-    credentials: 'include'
-  })
-  .then(function(response) {
-    if (!response.ok) throw new Error('SharePoint returned ' + response.status + '. Make sure you are logged into Microsoft 365 and have access to the SharePoint list.');
-    return response.json();
-  })
-  .then(function(json) {
-    var raw = (json && json.d && json.d.results) ? json.d.results : [];
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', apiUrl, true);
+  xhr.setRequestHeader('Accept', 'application/json;odata=verbose');
+  xhr.withCredentials = true;
 
+  xhr.onerror = function() {
+    showError('Cannot reach SharePoint. This dashboard must be opened from within Power Pages, not directly from GitHub. Use your Power Pages URL: site-g59of.powerappsportals.com');
+  };
+
+  xhr.onload = function() {
+    if (xhr.status === 401 || xhr.status === 403) {
+      showError('Access denied (' + xhr.status + '). Please open this dashboard from your Power Pages site while logged into Microsoft 365.');
+      return;
+    }
+    if (xhr.status < 200 || xhr.status >= 300) {
+      showError('SharePoint returned error ' + xhr.status + '. Check the list name BA_Weekly_Submissions exists at your SharePoint site.');
+      return;
+    }
+    var json;
+    try { json = JSON.parse(xhr.responseText); } catch(e) { showError('Could not parse response: ' + e.message); return; }
+
+    var raw = (json && json.d && json.d.results) ? json.d.results : [];
     var submissions = [];
     for (var i = 0; i < raw.length; i++) {
       var item = raw[i];
@@ -275,9 +282,7 @@ function loadDashboard() {
           var parsed = JSON.parse(item.SubmissionData);
           submissions.push(parsed);
         }
-      } catch(e) {
-        // skip malformed rows
-      }
+      } catch(e) { }
     }
 
     allSubmissions = submissions.sort(function(a, b) {
@@ -317,15 +322,18 @@ function loadDashboard() {
 
     filteredSubmissions = allSubmissions;
     renderDashboard();
-  })
-  .catch(function(err) {
-    document.getElementById('loading-state').innerHTML =
-      '<div style="text-align:center;color:#E24301;padding:20px">' +
-        '<div style="font-size:13px;font-weight:700">Failed to load submissions</div>' +
-        '<div style="font-size:12px;color:#3a5068;margin-top:6px">' + err.message + '</div>' +
-        '<button onclick="loadDashboard()" style="margin-top:14px;padding:8px 18px;background:#103454;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600">Retry</button>' +
-      '</div>';
-  });
+  };
+
+  xhr.send();
+}
+
+function showError(msg) {
+  document.getElementById('loading-state').innerHTML =
+    '<div style="text-align:center;color:#E24301;padding:20px;max-width:500px">' +
+      '<div style="font-size:13px;font-weight:700;margin-bottom:8px">Failed to load submissions</div>' +
+      '<div style="font-size:12px;color:#3a5068;line-height:1.6;margin-bottom:14px">' + msg + '</div>' +
+      '<button onclick="loadDashboard()" style="padding:8px 18px;background:#103454;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600">Retry</button>' +
+    '</div>';
 }
 
 var currentFilterMode = 'sprint';
