@@ -408,224 +408,203 @@ function renderDashboard() {
 
   if (subs.length === 0) {
     document.getElementById('empty-state').style.display = 'block';
+    document.getElementById('dashboard-content').style.display = 'none';
     return;
   }
 
   document.getElementById('empty-state').style.display = 'none';
   document.getElementById('dashboard-content').style.display = 'block';
 
-  var totalPtsC = subs.reduce(function(a,s) { return a + (parseFloat(s.ptsCommitted)||0); }, 0);
-  var totalPtsD = subs.reduce(function(a,s) { return a + (parseFloat(s.ptsCompleted)||0); }, 0);
-  var pct = totalPtsC > 0 ? Math.round(totalPtsD/totalPtsC*100) : 0;
-  var snowOpened = subs.reduce(function(a,s) { return a + (parseFloat(s.snowOpened)||0); }, 0);
-  var snowClosed = subs.reduce(function(a,s) { return a + (parseFloat(s.snowClosed)||0); }, 0);
+  var totalPtsC = 0; var totalPtsD = 0;
+  for (var i = 0; i < subs.length; i++) {
+    totalPtsC += parseFloat(subs[i].ptsCommitted) || 0;
+    totalPtsD += parseFloat(subs[i].ptsCompleted) || 0;
+  }
+  var pct = totalPtsC > 0 ? Math.round(totalPtsD / totalPtsC * 100) : 0;
+
+  var snowOpened = 0; var snowClosed = 0;
+  for (var i = 0; i < subs.length; i++) {
+    snowOpened += parseFloat(subs[i].snowOpened) || 0;
+    snowClosed += parseFloat(subs[i].snowClosed) || 0;
+  }
 
   var allInitiatives = [];
-  for (var si = 0; si < subs.length; si++) {
-    var inits = subs[si].initiatives || [];
-    for (var ii = 0; ii < inits.length; ii++) {
-      var init = {};
-      for (var k in inits[ii]) { init[k] = inits[ii][k]; }
-      init.baName = subs[si].baName;
-      init.sprintNum = subs[si].sprintNum;
-      allInitiatives.push(init);
+  for (var i = 0; i < subs.length; i++) {
+    var inits = subs[i].initiatives || [];
+    for (var j = 0; j < inits.length; j++) {
+      var ini = {};
+      for (var k in inits[j]) { ini[k] = inits[j][k]; }
+      ini.baName = subs[i].baName;
+      ini.sprintNum = subs[i].sprintNum;
+      allInitiatives.push(ini);
     }
   }
+
   var redCount = 0; var amberCount = 0; var greenCount = 0;
-  for (var ai = 0; ai < allInitiatives.length; ai++) {
-    if (allInitiatives[ai].health === 'red') redCount++;
-    else if (allInitiatives[ai].health === 'amber') amberCount++;
-    else if (allInitiatives[ai].health === 'green') greenCount++;
+  for (var i = 0; i < allInitiatives.length; i++) {
+    if (allInitiatives[i].health === 'red') redCount++;
+    else if (allInitiatives[i].health === 'amber') amberCount++;
+    else if (allInitiatives[i].health === 'green') greenCount++;
   }
 
-  var p1Subs = subs.filter(function(s) { return s.hasP1; });
-  var actionNeeded = subs.filter(function(s) {
-    return s.tpmHelp && s.tpmHelp.some(function(h) {
-      return h.indexOf('Action') >= 0 || h.indexOf('Decision') >= 0 || h.indexOf('Unblock') >= 0;
-    });
-  });
+  var p1Subs = [];
+  for (var i = 0; i < subs.length; i++) { if (subs[i].hasP1) p1Subs.push(subs[i]); }
+
+  var actionNeeded = [];
+  for (var i = 0; i < subs.length; i++) {
+    var th = subs[i].tpmHelp || [];
+    for (var j = 0; j < th.length; j++) {
+      if (th[j].indexOf('Action') >= 0 || th[j].indexOf('Decision') >= 0 || th[j].indexOf('Unblock') >= 0) {
+        actionNeeded.push(subs[i]); break;
+      }
+    }
+  }
 
   var html = '';
 
-  // Escalation banner
   if (p1Subs.length > 0 || redCount > 0) {
-    html += '<div class="escalation-banner">
-      <div class="esc-icon">&#9888;</div>
-      <div class="esc-body">
-        <div class="esc-title">Attention Required &#8212; ' + (p1Subs.length + redCount) + ' item(s) need immediate review</div>';
-    p1Subs.forEach(function(s) {
-      html += '<div class="esc-item">P1/Escalation &#8212; ' + (s.baName) + ': ' + (s.p1What && p1What.substring(0,120) || '') + '&#8230;</div>';
-    });
-    allInitiatives.filter(function(i) { return i.health==='red').forEach(function(i) {; }
-      html += '<div class="esc-item">Blocked initiative &#8212; ' + (i.baName) + ' / ' + (i.name) + ': ' + ((i.blocked||'').substring(0,100)) + '&#8230;</div>';
-    });
+    html += '<div class="escalation-banner"><div class="esc-icon">!</div><div class="esc-body">';
+    html += '<div class="esc-title">Attention Required - ' + (p1Subs.length + redCount) + ' item(s) need immediate review</div>';
+    for (var i = 0; i < p1Subs.length; i++) {
+      html += '<div class="esc-item">P1/Escalation - ' + p1Subs[i].baName + ': ' + (p1Subs[i].p1What || '').substring(0, 120) + '</div>';
+    }
+    for (var i = 0; i < allInitiatives.length; i++) {
+      if (allInitiatives[i].health === 'red') {
+        html += '<div class="esc-item">Blocked - ' + allInitiatives[i].baName + ' / ' + (allInitiatives[i].name || '') + ': ' + (allInitiatives[i].blocked || '').substring(0, 100) + '</div>';
+      }
+    }
     html += '</div></div>';
   }
 
-  // Summary bar
-  html += '<div class="summary-bar">
-    <div class="sum-card"><div class="sum-label">BAs Submitted</div><div class="sum-value val-purple">' + (subs.length) + '</div><div class="sum-sub">of 7 expected</div></div>
-    <div class="sum-card"><div class="sum-label">Sprint Velocity</div><div class="sum-value val-text">' + (pct) + '%</div><div class="sum-sub">' + (totalPtsD) + '/' + (totalPtsC) + ' pts</div></div>
-    <div class="sum-card"><div class="sum-label">Blocked</div><div class="sum-value ' + (redCount>0?'val-red':'val-green') + '">' + (redCount) + '</div><div class="sum-sub">initiatives</div></div>
-    <div class="sum-card"><div class="sum-label">At Risk</div><div class="sum-value ' + (amberCount>0?'val-amber':'val-green') + '">' + (amberCount) + '</div><div class="sum-sub">initiatives</div></div>
-    <div class="sum-card"><div class="sum-label">SNOW Opened</div><div class="sum-value val-amber">' + (snowOpened) + '</div><div class="sum-sub">' + (snowClosed) + ' closed</div></div>
-    <div class="sum-card"><div class="sum-label">Action Needed</div><div class="sum-value ' + (actionNeeded.length>0?'val-red':'val-green') + '">' + (actionNeeded.length) + '</div><div class="sum-sub">TPM items</div></div>
-  </div>';
+  html += '<div class="summary-bar">';
+  html += '<div class="sum-card"><div class="sum-label">BAs Submitted</div><div class="sum-value val-purple">' + subs.length + '</div><div class="sum-sub">of 7 expected</div></div>';
+  html += '<div class="sum-card"><div class="sum-label">Sprint Velocity</div><div class="sum-value val-txt">' + pct + '%</div><div class="sum-sub">' + totalPtsD + '/' + totalPtsC + ' pts</div></div>';
+  html += '<div class="sum-card"><div class="sum-label">Blocked</div><div class="sum-value ' + (redCount > 0 ? 'val-red' : 'val-green') + '">' + redCount + '</div><div class="sum-sub">initiatives</div></div>';
+  html += '<div class="sum-card"><div class="sum-label">At Risk</div><div class="sum-value ' + (amberCount > 0 ? 'val-amber' : 'val-green') + '">' + amberCount + '</div><div class="sum-sub">initiatives</div></div>';
+  html += '<div class="sum-card"><div class="sum-label">SNOW Opened</div><div class="sum-value val-amber">' + snowOpened + '</div><div class="sum-sub">' + snowClosed + ' closed</div></div>';
+  html += '<div class="sum-card"><div class="sum-label">Action Needed</div><div class="sum-value ' + (actionNeeded.length > 0 ? 'val-red' : 'val-green') + '">' + actionNeeded.length + '</div><div class="sum-sub">TPM items</div></div>';
+  html += '</div>';
 
-  // Health grid
   if (allInitiatives.length > 0) {
-    html += '<div class="dash-section"><div class="dash-section-title"><span>Initiative Health (' + (allInitiatives.length) + ' total)</span><span>' + (greenCount) + ' green &#183; ' + (amberCount) + ' amber &#183; ' + (redCount) + ' blocked</span></div>
-    <div class="health-grid">';
-    allInitiatives.forEach(function(i) {
-      var cls = i.health || 'green';
-      var pillCls = 'pill-' + (cls);
-      var detail = '';
-      if (cls==='green') detail = i.nextWeek || 'No updates noted';
-      if (cls==='amber') detail = i.atRisk || '';
-      if (cls==='red') detail = i.blocked || '';
-      html += '<div class="health-card ' + (cls) + '">
-        <div class="hc-top">
-          <div class="hc-name">' + (i.name||'Unnamed initiative') + '</div>
-          <span class="health-pill ' + (pillCls) + '">' + (cls.toUpperCase()) + '</span>
-        </div>
-        <div class="hc-team">' + (i.baName) + ' &#183; ' + (i.sprintNum||'') + '</div>
-        <div class="hc-detail">' + (detail.substring(0,120)) + (detail.length>120?'&#8230;':'') + '</div>
-      </div>';
-    });
+    html += '<div class="dash-section"><div class="dash-section-title"><span>Initiative Health (' + allInitiatives.length + ' total)</span><span>' + greenCount + ' green - ' + amberCount + ' amber - ' + redCount + ' blocked</span></div><div class="health-grid">';
+    for (var i = 0; i < allInitiatives.length; i++) {
+      var ini = allInitiatives[i];
+      var cls = ini.health || 'green';
+      var detail = cls === 'green' ? (ini.nextWeek || 'No updates') : cls === 'amber' ? (ini.atRisk || '') : (ini.blocked || '');
+      var ds = detail.substring(0, 120) + (detail.length > 120 ? '...' : '');
+      html += '<div class="health-card ' + cls + '">';
+      html += '<div class="hc-top"><div class="hc-name">' + (ini.name || 'Unnamed') + '</div><span class="health-pill pill-' + cls + '">' + cls.toUpperCase() + '</span></div>';
+      html += '<div class="hc-team">' + ini.baName + ' - ' + (ini.sprintNum || '') + '</div>';
+      html += '<div class="hc-detail">' + ds + '</div></div>';
+    }
     html += '</div></div>';
   }
 
-  // TPM action items
-  var tpmItems = subs.filter(function(s) { return s.tpmHelp && s.tpmHelp.length > 0 && !s.tpmHelp.every(function(h) { return h.indexOf('None') >= 0)); }; }
+  var tpmItems = [];
+  for (var i = 0; i < subs.length; i++) {
+    var th = subs[i].tpmHelp || [];
+    var hasAny = false;
+    for (var j = 0; j < th.length; j++) { if (th[j].indexOf('None') < 0) { hasAny = true; break; } }
+    if (th.length > 0 && hasAny) tpmItems.push(subs[i]);
+  }
   if (tpmItems.length > 0) {
     html += '<div class="dash-section"><div class="dash-section-title">TPM Action Items &amp; FYIs</div>';
-    tpmItems.forEach(function(s) {
+    for (var i = 0; i < tpmItems.length; i++) {
+      var s = tpmItems[i];
       var tags = s.tpmHelp || [];
-      var tagHtml = tags.map(function(t) {
-        var cls = 'tag-fyi';
-        if (t.indexOf('Action') >= 0) cls='tag-action';
-        else if (t.indexOf('Decision') >= 0) cls='tag-decision';
-        else if (t.indexOf('Unblock') >= 0) cls='tag-unblock';
-        else if (t.indexOf('None') >= 0) cls='tag-none';
-        return '<span class="tpm-tag ' + (cls) + '">' + (t) + '</span>';
-      }).join('');
-      html += '<div class="tpm-row">
-        <div class="tpm-row-left">
-          <div class="tpm-ba">' + (s.baName) + '</div>
-          <div class="tpm-sprint">' + (s.sprintNum||'') + '</div>
-        </div>
-        <div class="tpm-row-right">
-          <div class="tpm-tags">' + (tagHtml) + '</div>
-          <div class="tpm-detail-text">' + (s.tpmDetail||'No detail provided.') + '</div>
-        </div>
-      </div>';
-    });
+      var tagHtml = '';
+      for (var j = 0; j < tags.length; j++) {
+        var t = tags[j];
+        var tcls = t.indexOf('Action') >= 0 ? 'tag-action' : t.indexOf('Decision') >= 0 ? 'tag-decision' : t.indexOf('Unblock') >= 0 ? 'tag-unblock' : t.indexOf('None') >= 0 ? 'tag-none' : 'tag-fyi';
+        tagHtml += '<span class="tpm-tag ' + tcls + '">' + t + '</span>';
+      }
+      html += '<div class="tpm-row"><div class="tpm-row-left"><div class="tpm-ba">' + s.baName + '</div><div class="tpm-sprint">' + (s.sprintNum || '') + '</div></div>';
+      html += '<div class="tpm-row-right"><div class="tpm-tags">' + tagHtml + '</div><div class="tpm-detail-text">' + (s.tpmDetail || 'No detail provided.') + '</div></div></div>';
+    }
     html += '</div>';
   }
 
-  // BA sprint metrics table
-  html += '<div class="dash-section"><div class="dash-section-title">Sprint Metrics by BA</div>
-    <div class="ba-table-wrap"><table class="ba-table"><thead><tr>
-      <th>BA</th><th>Sprint</th><th>Teams</th><th>Pts Committed</th><th>Pts Completed</th><th>Velocity</th><th>Carryover</th><th>P1?</th><th>Health</th>
-    </tr></thead><tbody>';
-
-  subs.forEachfunction((s,idx) {
-    var ptsC = parseFloat(s.ptsCommitted)||0;
-    var ptsD = parseFloat(s.ptsCompleted)||0;
-    var pctV = ptsC > 0 ? Math.round(ptsD/ptsC*100) : 0;
-    var pctColor = pctV >= 90 ? 'var(--green)' : pctV >= 70 ? 'var(--amber)' : 'var(--red)';
-    var teams = (s.teams||[]).join(', ');
-    var healthCounts = (s.initiatives||[]).reducefunction((acc,i) { acc[i.health]=(acc[i.health]||0)+1; return acc; }, {});
-      var healthSummary = '';
-      var hkeys2 = Object.keys(healthCounts);
-      for (var hki2 = 0; hki2 < hkeys2.length; hki2++) {
-        healthSummary += '<span class="dot dot-' + hkeys2[hki2] + '"></span> ' + healthCounts[hkeys2[hki2]] + ' ';
-      }
-      healthSummary = healthSummary.trim();
-
-    html += '<tr style="cursor:pointer" onclick="toggleDrawer(' + (idx) + ')">
-      <td style="font-weight:500">' + (s.baName) + '</td>
-      <td style="font-family:\'Inter Tight\',Arial,sans-serif;color:var(--text3)">' + (s.sprintNum||'&#8212;') + '</td>
-      <td style="color:var(--text2);font-size:11px">' + (teams||'&#8212;') + '</td>
-      <td style="font-family:\'Inter Tight\',Arial,sans-serif">' + (ptsC||'&#8212;') + '</td>
-      <td style="font-family:\'Inter Tight\',Arial,sans-serif">' + (ptsD||'&#8212;') + '</td>
-      <td>
-        <div class="pct-bar">
-          <div class="pct-track"><div class="pct-fill" style="width:' + (pctV) + '%;background:' + (pctColor) + '"></div></div>
-          <span style="font-size:11px;font-family:\'Inter Tight\',Arial,sans-serif;color:' + (pctColor) + ';min-width:36px">' + (pctV) + '%</span>
-        </div>
-      </td>
-      <td>${s.hasCarryover ? '<span style="color:var(--amber)">Yes</span>' : '<span style="color:var(--text3)">No</span>'}</td>
-      <td>${s.hasP1 ? '<span style="color:var(--red)">&#9888; Yes</span>' : '<span style="color:var(--text3)">No</span>'}</td>
-      <td>' + (healthSummary||'&#8212;') + '</td>
-    </tr>
-    <tr id="drawer-' + (idx) + '" style="display:none">
-      <td colspan="9" style="padding:0">
-        <div style="padding:16px;background:var(--surface2);border-top:1px solid var(--border)">
-          ' + (renderDrawer(s)) + '
-        </div>
-      </td>
-    </tr>';
-  });
-
+  html += '<div class="dash-section"><div class="dash-section-title">Sprint Metrics by BA</div><div class="ba-table-wrap"><table class="ba-table"><thead><tr><th>BA</th><th>Sprint</th><th>Teams</th><th>Committed</th><th>Completed</th><th>Velocity</th><th>Carryover</th><th>P1?</th><th>Health</th></tr></thead><tbody>';
+  for (var i = 0; i < subs.length; i++) {
+    var s = subs[i];
+    var pc = parseFloat(s.ptsCommitted) || 0;
+    var pd = parseFloat(s.ptsCompleted) || 0;
+    var pv = pc > 0 ? Math.round(pd / pc * 100) : 0;
+    var pvColor = pv >= 90 ? 'var(--green)' : pv >= 70 ? 'var(--amber)' : 'var(--red)';
+    var teams2 = (s.teams || []).join(', ');
+    var hc = {}; var si2 = s.initiatives || [];
+    for (var j = 0; j < si2.length; j++) { var hh = si2[j].health || 'green'; hc[hh] = (hc[hh] || 0) + 1; }
+    var hs = ''; var hk = Object.keys(hc);
+    for (var j = 0; j < hk.length; j++) { hs += '<span class="dot dot-' + hk[j] + '"></span> ' + hc[hk[j]] + ' '; }
+    html += '<tr style="cursor:pointer" onclick="toggleDrawer(' + i + ')">';
+    html += '<td style="font-weight:600">' + (s.baName || '') + '</td>';
+    html += '<td style="color:var(--text3)">' + (s.sprintNum || '-') + '</td>';
+    html += '<td style="font-size:11px;color:var(--text2)">' + (teams2 || '-') + '</td>';
+    html += '<td>' + (pc || '-') + '</td><td>' + (pd || '-') + '</td>';
+    html += '<td><div class="pct-bar"><div class="pct-track"><div class="pct-fill" style="width:' + pv + '%;background:' + pvColor + '"></div></div><span style="font-size:11px;color:' + pvColor + ';min-width:36px">' + pv + '%</span></div></td>';
+    html += '<td>' + (s.hasCarryover ? '<span style="color:var(--amber)">Yes</span>' : '<span style="color:var(--text3)">No</span>') + '</td>';
+    html += '<td>' + (s.hasP1 ? '<span style="color:var(--red)">Yes</span>' : '<span style="color:var(--text3)">No</span>') + '</td>';
+    html += '<td>' + (hs.trim() || '-') + '</td></tr>';
+    html += '<tr id="drawer-' + i + '" style="display:none"><td colspan="9" style="padding:0"><div style="padding:16px;background:var(--surface2);border-top:1px solid var(--border)">' + renderDrawer(s) + '</div></td></tr>';
+  }
   html += '</tbody></table></div></div>';
 
-  // SNOW breakdown
   html += '<div class="dash-section"><div class="dash-section-title">SNOW Signal by BA</div><div class="snow-grid">';
-  subs.forEach(function(s) {
-    var hasP1 = s.hasP1;
-    html += '<div class="snow-card">
-      <div class="snow-ba">' + (s.baName) + ' <span style="font-size:10px;color:var(--text3);font-family:\'Inter Tight\',Arial,sans-serif">' + (s.sprintNum||'') + '</span></div>
-      <div class="snow-nums">
-        <div class="snow-num"><span class="sn-val sn-opened">' + (s.snowOpened||0) + '</span><span class="sn-lbl">Opened</span></div>
-        <div class="snow-num"><span class="sn-val sn-closed">' + (s.snowClosed||0) + '</span><span class="sn-lbl">Closed</span></div>
-        <div class="snow-num"><span class="sn-val sn-flight">' + (s.snowFlight||0) + '</span><span class="sn-lbl">In Flight</span></div>
-      </div>
-      ${hasP1 ? '<div style="margin-top:8px;font-size:10px;color:var(--red);background:var(--orange-dim);padding:4px 8px;border-radius:4px;font-family:'Inter Tight',Arial,sans-serif">P1 / ESCALATION</div>':\'\'}
-    </div>';
-  });
+  for (var i = 0; i < subs.length; i++) {
+    var s = subs[i];
+    html += '<div class="snow-card"><div class="snow-ba">' + s.baName + ' <span style="font-size:10px;color:var(--text3)">' + (s.sprintNum || '') + '</span></div>';
+    html += '<div class="snow-nums">';
+    html += '<div class="snow-num"><span class="sn-val sn-opened">' + (s.snowOpened || 0) + '</span><span class="sn-lbl">Opened</span></div>';
+    html += '<div class="snow-num"><span class="sn-val sn-closed">' + (s.snowClosed || 0) + '</span><span class="sn-lbl">Closed</span></div>';
+    html += '<div class="snow-num"><span class="sn-val sn-flight">' + (s.snowFlight || 0) + '</span><span class="sn-lbl">In Flight</span></div>';
+    html += '</div>';
+    if (s.hasP1) { html += '<div style="margin-top:8px;font-size:10px;color:var(--red);background:var(--orange-dim);padding:4px 8px;border-radius:4px">P1 / ESCALATION</div>'; }
+    html += '</div>';
+  }
   html += '</div></div>';
 
-  // Wins & improvements
   html += '<div class="dash-section"><div class="dash-section-title">Wins &amp; Improvement Focus</div><div class="health-grid">';
-  subs.forEach(function(s) {
-    html += '<div class="health-card" style="border-left-color:var(--purple)">
-      <div class="hc-top"><div class="hc-name">' + (s.baName) + '</div><span class="health-pill pill-blue">' + (s.sprintNum||'') + '</span></div>
-      <div class="hc-detail" style="color:var(--green)">Win: ' + ((s.biggestWin||'').substring(0,90)) + ((s.biggestWin||'').length>90?'&#8230;':'') + '</div>
-      <div class="hc-detail" style="color:var(--amber);margin-top:4px">Focus: ' + ((s.improve||'').substring(0,90)) + ((s.improve||'').length>90?'&#8230;':'') + '</div>
-    </div>';
-  });
+  for (var i = 0; i < subs.length; i++) {
+    var s = subs[i];
+    var win = (s.biggestWin || '').substring(0, 90) + ((s.biggestWin || '').length > 90 ? '...' : '');
+    var focus = (s.improve || '').substring(0, 90) + ((s.improve || '').length > 90 ? '...' : '');
+    html += '<div class="health-card" style="border-left-color:var(--blue)">';
+    html += '<div class="hc-top"><div class="hc-name">' + (s.baName || '') + '</div><span class="health-pill pill-blue">' + (s.sprintNum || '') + '</span></div>';
+    html += '<div class="hc-detail" style="color:var(--teal)">Win: ' + win + '</div>';
+    html += '<div class="hc-detail" style="color:#7a5c00;margin-top:4px">Focus: ' + focus + '</div>';
+    html += '</div>';
+  }
   html += '</div></div>';
 
   document.getElementById('dashboard-content').innerHTML = html;
-  var filterDesc = filteredSubmissions.length < allSubmissions.length
-    ? (subs.length) + ' of ' + (allSubmissions.length) + ' submissions (filtered)'
-    : (subs.length) + ' submissions';
-  document.getElementById('last-updated').textContent = (filterDesc) + ' &#183; Last refreshed ' + (new Date().toLocaleTimeString());
+  var filterDesc = filteredSubmissions.length < allSubmissions.length ? (subs.length + ' of ' + allSubmissions.length + ' submissions (filtered)') : (subs.length + ' submissions');
+  document.getElementById('last-updated').textContent = filterDesc + ' - Last refreshed ' + new Date().toLocaleTimeString();
 }
 
 function renderDrawer(s) {
   var h = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:12px">';
-  h += '<div><div style="font-size:10px;font-family:\'Inter Tight\',Arial,sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Key Work Delivered</div><div style="font-size:12px;color:var(--text2);line-height:1.5;white-space:pre-line">' + (s.keyDelivered||'&#8212;') + '</div></div>';
-  h += '<div><div style="font-size:10px;font-family:\'Inter Tight\',Arial,sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Biggest Win</div><div style="font-size:12px;color:var(--green);line-height:1.5">' + (s.biggestWin||'&#8212;') + '</div></div>';
-  h += '<div><div style="font-size:10px;font-family:\'Inter Tight\',Arial,sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Dependencies / Risks</div><div style="font-size:12px;color:var(--text2);line-height:1.5">' + (s.depsRisks||'&#8212;') + '</div></div>';
+  h += '<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Key Work Delivered</div><div style="font-size:12px;color:var(--text2);line-height:1.5">' + (s.keyDelivered || '-') + '</div></div>';
+  h += '<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Biggest Win</div><div style="font-size:12px;color:var(--teal);line-height:1.5">' + (s.biggestWin || '-') + '</div></div>';
+  h += '<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Dependencies / Risks</div><div style="font-size:12px;color:var(--text2);line-height:1.5">' + (s.depsRisks || '-') + '</div></div>';
   h += '</div>';
   if (s.hasCarryover && s.coWhat) {
-    h += '<div style="margin-top:10px;padding:10px 12px;background:var(--yellow-dim);border-radius:var(--radius);border:1px solid rgba(245,166,35,0.2)"><span style="font-size:10px;font-family:\'Inter Tight\',Arial,sans-serif;color:var(--amber);text-transform:uppercase;letter-spacing:0.5px">Carryover</span><p style="font-size:12px;color:var(--text2);margin-top:4px;line-height:1.5">' + (s.coWhat) + ' &#8212; Reason: ' + (s.coReason||'not specified') + '</p></div>';
+    h += '<div style="margin-top:10px;padding:10px 12px;background:var(--yellow-dim);border-radius:var(--radius);border:1px solid rgba(255,197,50,0.3)"><span style="font-size:10px;color:#7a5c00;text-transform:uppercase;letter-spacing:0.5px">Carryover</span><p style="font-size:12px;color:var(--text2);margin-top:4px;line-height:1.5">' + s.coWhat + ' - Reason: ' + (s.coReason || 'not specified') + '</p></div>';
   }
   if (s.hasP1 && s.p1What) {
-    h += '<div style="margin-top:10px;padding:10px 12px;background:var(--orange-dim);border-radius:var(--radius);border:1px solid rgba(242,87,87,0.2)"><span style="font-size:10px;font-family:\'Inter Tight\',Arial,sans-serif;color:var(--red);text-transform:uppercase;letter-spacing:0.5px">P1 / Escalation</span><p style="font-size:12px;color:var(--text2);margin-top:4px;line-height:1.5">' + (s.p1What) + '</p><p style="font-size:12px;color:var(--text3);margin-top:4px">Status: ' + (s.p1Status) + ' | Next: ' + (s.p1Next) + '</p></div>';
+    h += '<div style="margin-top:10px;padding:10px 12px;background:var(--orange-dim);border-radius:var(--radius);border:1px solid rgba(226,67,1,0.2)"><span style="font-size:10px;color:var(--orange);text-transform:uppercase;letter-spacing:0.5px">P1 / Escalation</span><p style="font-size:12px;color:var(--text2);margin-top:4px;line-height:1.5">' + s.p1What + '</p><p style="font-size:12px;color:var(--text3);margin-top:4px">Status: ' + (s.p1Status || '') + ' | Next: ' + (s.p1Next || '') + '</p></div>';
   }
   if (s.workItems && s.workItems.length > 0) {
-    h += '<div style="margin-top:12px"><div style="font-size:10px;font-family:\'Inter Tight\',Arial,sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Work Items This Week</div>';
-    s.workItems.filter(function(w) { return w.desc).forEach(function(w) {; }
-      var statusColor = w.status==='Completed'?'var(--green)':w.status==='Blocked'?'var(--red)':w.status==='In Progress'?'var(--blue)':'var(--text3)';
-      h += '<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;align-items:flex-start">
-        <span style="color:' + (statusColor) + ';min-width:80px;font-family:\'Inter Tight\',Arial,sans-serif;font-size:10px;margin-top:2px">' + (w.status||'&#8212;') + '</span>
-        <span style="flex:1;color:var(--text2)">' + (w.desc) + '</span>
-        <span style="color:var(--text3);font-size:11px;min-width:120px">' + (w.epic||'') + '</span>
-      </div>';
-    });
+    h += '<div style="margin-top:12px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Work Items This Week</div>';
+    for (var i = 0; i < s.workItems.length; i++) {
+      var w = s.workItems[i];
+      if (!w.desc) continue;
+      var sc = w.status === 'Completed' ? 'var(--teal)' : w.status === 'Blocked' ? 'var(--orange)' : w.status === 'In Progress' ? 'var(--blue)' : 'var(--text3)';
+      h += '<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">';
+      h += '<span style="color:' + sc + ';min-width:80px;font-size:10px;margin-top:2px">' + (w.status || '-') + '</span>';
+      h += '<span style="flex:1;color:var(--text2)">' + w.desc + '</span>';
+      h += '<span style="color:var(--text3);font-size:11px;min-width:120px">' + (w.epic || '') + '</span>';
+      h += '</div>';
+    }
     h += '</div>';
   }
   return h;
@@ -633,7 +612,7 @@ function renderDrawer(s) {
 
 function toggleDrawer(idx) {
   var row = document.getElementById('drawer-' + idx);
-  if (row) row.style.display = row.style.display === 'none' ? '' : 'none';
+  if (row) { row.style.display = row.style.display === 'none' ? '' : 'none'; }
 }
 
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', loadDashboard); } else { loadDashboard(); }
