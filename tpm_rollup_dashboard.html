@@ -219,93 +219,120 @@
 </div>
 
 <script>
-let allSubmissions = [];
-let filteredSubmissions = [];
 
-// ─────────────────────────────────────────────────────────────────
-// POWER AUTOMATE READ ENDPOINT
-// Paste your "Get Submissions" Power Automate HTTP trigger URL below.
-// See the Setup Guide for step-by-step instructions.
-// ─────────────────────────────────────────────────────────────────
-const READ_FLOW_URL = 'https://defaultb110eddf23ae457ca6f3734d592b28.47.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6e44c72f58ad496dadc58eae0148154f/triggers/manual/paths/invoke?api-version=1';
+var allSubmissions = [];
+var filteredSubmissions = [];
 
-async function loadDashboard() {
+// &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;
+// SHAREPOINT CONFIGURATION
+// Replace these two values with your SharePoint site URL and list name
+// No Power Automate needed - reads directly from SharePoint
+// &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;
+var SHAREPOINT_SITE_URL = 'https://premierinc.sharepoint.com/teams/InnovatixIT-Portfolio';
+// Example: 'https://premierinc.sharepoint.com/sites/CoC-Technology'
+var LIST_NAME = 'BA_Weekly_Submissions';
+
+function loadDashboard() {
   document.getElementById('loading-state').style.display = 'flex';
   document.getElementById('dashboard-content').style.display = 'none';
   document.getElementById('empty-state').style.display = 'none';
 
-  if (READ_FLOW_URL === 'https://defaultb110eddf23ae457ca6f3734d592b28.47.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6e44c72f58ad496dadc58eae0148154f/triggers/manual/paths/invoke?api-version=1') {
+  if (SHAREPOINT_SITE_URL === 'https://premierinc.sharepoint.com/teams/InnovatixIT-Portfolio') {
     document.getElementById('loading-state').innerHTML =
-      '<div style="text-align:center;max-width:460px">' +
-        '<div style="font-size:28px;margin-bottom:12px">⚙️</div>' +
-        '<div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:8px">Setup required</div>' +
-        '<div style="font-size:13px;color:var(--text2);line-height:1.7">Paste your Power Automate <strong>Read</strong> flow URL into the <code>READ_FLOW_URL</code> variable at the top of the script block in this file. See the <strong>Setup Guide</strong> for full instructions.</div>' +
+      '<div style="text-align:center;max-width:460px;padding:20px">' +
+        '<div style="font-size:15px;font-weight:700;color:#103454;margin-bottom:8px">Setup required</div>' +
+        '<div style="font-size:13px;color:#3a5068;line-height:1.7">Open this file in VS Code and replace <strong>https://premierinc.sharepoint.com/teams/InnovatixIT-Portfolio</strong> with your SharePoint site URL. Example:<br><br><code style="background:#f0f4f8;padding:4px 8px;border-radius:4px;font-size:11px">https://premierinc.sharepoint.com/sites/CoC-Technology</code></div>' +
       '</div>';
     return;
   }
 
-  try {
-    const response = await fetch(READ_FLOW_URL, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    });
+  var apiUrl = SHAREPOINT_SITE_URL.replace(/\/$/, '') +
+    '/_api/web/lists/getbytitle('' + LIST_NAME + '')/items' +
+    '?$select=SubmissionData,BAName,WeekEnding,SprintNumber,SubmittedAt' +
+    '&$orderby=SubmittedAt desc' +
+    '&$top=100';
 
-    if (!response.ok) throw new Error('Server returned ' + response.status + ': ' + response.statusText);
+  fetch(apiUrl, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json;odata=verbose',
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include'
+  })
+  .then(function(response) {
+    if (!response.ok) throw new Error('SharePoint returned ' + response.status + '. Make sure you are logged into Microsoft 365 and have access to the SharePoint list.');
+    return response.json();
+  })
+  .then(function(json) {
+    var raw = (json && json.d && json.d.results) ? json.d.results : [];
 
-    const json = await response.json();
-    // Power Automate returns { submissions: [...] } or a direct array
-    const raw = Array.isArray(json) ? json : (json.submissions || json.value || []);
-
-    const submissions = raw.map(item => {
-      // If stored as a JSON string in a SharePoint column, parse it
+    var submissions = [];
+    for (var i = 0; i < raw.length; i++) {
+      var item = raw[i];
       try {
-        return typeof item.SubmissionData === 'string' ? JSON.parse(item.SubmissionData) : item;
+        if (item.SubmissionData && typeof item.SubmissionData === 'string') {
+          var parsed = JSON.parse(item.SubmissionData);
+          submissions.push(parsed);
+        }
       } catch(e) {
-        return item;
+        // skip malformed rows
       }
-    });
+    }
 
-    allSubmissions = submissions.sort((a,b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+    allSubmissions = submissions.sort(function(a, b) {
+      return new Date(b.submittedAt) - new Date(a.submittedAt);
+    });
 
     // Populate sprint filter
-    const sprints = [...new Set(allSubmissions.map(s => s.sprintNum).filter(Boolean))];
-    const sel = document.getElementById('sprint-filter');
+    var sprintSet = {};
+    var sprints = [];
+    for (var i = 0; i < allSubmissions.length; i++) {
+      var sp = allSubmissions[i].sprintNum;
+      if (sp && !sprintSet[sp]) { sprintSet[sp] = true; sprints.push(sp); }
+    }
+    var sel = document.getElementById('sprint-filter');
     sel.innerHTML = '<option value="">All sprints</option>';
-    sprints.forEach(sp => {
-      const opt = document.createElement('option');
-      opt.value = sp; opt.textContent = sp;
+    for (var i = 0; i < sprints.length; i++) {
+      var opt = document.createElement('option');
+      opt.value = sprints[i]; opt.textContent = sprints[i];
       sel.appendChild(opt);
-    });
+    }
 
     // Populate week-ending filter
-    const weeks = [...new Set(allSubmissions.map(s => s.weekEnding).filter(Boolean))].sort().reverse();
-    const wsel = document.getElementById('week-filter');
+    var weekSet = {};
+    var weeks = [];
+    for (var i = 0; i < allSubmissions.length; i++) {
+      var w = allSubmissions[i].weekEnding;
+      if (w && !weekSet[w]) { weekSet[w] = true; weeks.push(w); }
+    }
+    weeks.sort().reverse();
+    var wsel = document.getElementById('week-filter');
     wsel.innerHTML = '<option value="">All weeks</option>';
-    weeks.forEach(w => {
-      const opt = document.createElement('option');
-      opt.value = w; opt.textContent = 'Week ending ' + fmt(w);
-      wsel.appendChild(opt);
-    });
+    for (var i = 0; i < weeks.length; i++) {
+      var wopt = document.createElement('option');
+      wopt.value = weeks[i]; wopt.textContent = 'Week ending ' + fmt(weeks[i]);
+      wsel.appendChild(wopt);
+    }
 
     filteredSubmissions = allSubmissions;
     renderDashboard();
-
-  } catch(err) {
+  })
+  .catch(function(err) {
     document.getElementById('loading-state').innerHTML =
-      '<div style="text-align:center;color:var(--orange)">' +
-        '<div style="font-size:24px;margin-bottom:8px">⚠</div>' +
+      '<div style="text-align:center;color:#E24301;padding:20px">' +
         '<div style="font-size:13px;font-weight:700">Failed to load submissions</div>' +
-        '<div style="font-size:12px;color:var(--text2);margin-top:6px">' + err.message + '</div>' +
-        '<button onclick="loadDashboard()" style="margin-top:14px;padding:8px 18px;background:var(--navy);color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600">Retry</button>' +
+        '<div style="font-size:12px;color:#3a5068;margin-top:6px">' + err.message + '</div>' +
+        '<button onclick="loadDashboard()" style="margin-top:14px;padding:8px 18px;background:#103454;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600">Retry</button>' +
       '</div>';
-  }
+  });
 }
 
-let currentFilterMode = 'sprint';
+var currentFilterMode = 'sprint';
 
 function setFilterMode(mode) {
   currentFilterMode = mode;
-  document.querySelectorAll('.filter-mode-btn[id^="mode-"]').forEach(b => b.classList.remove('active'));
+  var modeBtns = document.querySelectorAll('.filter-mode-btn'); for (var mi = 0; mi < modeBtns.length; mi++) { if (modeBtns[mi].id && modeBtns[mi].id.indexOf('mode-') === 0) modeBtns[mi].classList.remove('active'); }
   document.getElementById('mode-' + mode).classList.add('active');
   document.getElementById('group-sprint').style.display = mode === 'sprint' ? 'flex' : 'none';
   document.getElementById('group-date').style.display  = mode === 'date'   ? 'flex' : 'none';
@@ -314,39 +341,39 @@ function setFilterMode(mode) {
 }
 
 function applyFilters() {
-  let subs = allSubmissions;
-  let label = '';
+  var subs = allSubmissions;
+  var label = '';
 
   if (currentFilterMode === 'sprint') {
-    const val = document.getElementById('sprint-filter').value;
-    if (val) { subs = subs.filter(s => s.sprintNum === val); label = val; }
+    var val = document.getElementById('sprint-filter').value;
+    if (val) { subs = subs.filter(function(s) { return s.sprintNum === val; }); label = val; }
 
   } else if (currentFilterMode === 'date') {
-    const from = document.getElementById('date-from').value;
-    const to   = document.getElementById('date-to').value;
+    var from = document.getElementById('date-from').value;
+    var to = document.getElementById('date-to').value;
     if (from || to) {
-      subs = subs.filter(s => {
-        const d = s.weekEnding || s.submittedAt?.substring(0,10);
+      subs = subs.filter(function(s) {
+        var d = s.weekEnding || s.submittedAt && submittedAt.substring(0,10);
         if (!d) return true;
         if (from && d < from) return false;
-        if (to   && d > to)   return false;
+        if (to && d > to) return false;
         return true;
       });
-      label = (from && to) ? `${fmt(from)} → ${fmt(to)}` : from ? `From ${fmt(from)}` : `To ${fmt(to)}`;
+      label = (from && to) ? (fmt(from) + ' -> ' + fmt(to)) : from ? ('From ' + fmt(from)) : ('To ' + fmt(to));
     }
 
   } else if (currentFilterMode === 'week') {
-    const val = document.getElementById('week-filter').value;
-    if (val) { subs = subs.filter(s => s.weekEnding === val); label = `Week ending ${fmt(val)}`; }
+    var val2 = document.getElementById('week-filter').value;
+    if (val2) { subs = subs.filter(function(s) { return s.weekEnding === val2; }); label = 'Week ending ' + fmt(val2); }
   }
 
   filteredSubmissions = subs;
 
   // Active filter pill
-  const disp = document.getElementById('active-filter-display');
-  const clr  = document.getElementById('clear-btn');
+  var disp = document.getElementById('active-filter-display');
+  var clr  = document.getElementById('clear-btn');
   if (label) {
-    disp.innerHTML = `<div class="active-filter-pill"><span>${label}</span><button onclick="clearFilters()">✕</button></div>`;
+    disp.innerHTML = '<div class="active-filter-pill"><span>' + label + '</span><button onclick="clearFilters()">X</button></div>';
     clr.style.display = 'none';
   } else {
     disp.innerHTML = '';
@@ -369,14 +396,15 @@ function clearFilters() {
 
 function fmt(dateStr) {
   if (!dateStr) return '';
-  const [y,m,d] = dateStr.split('-');
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return `${months[parseInt(m,10)-1]} ${parseInt(d,10)}, ${y}`;
+  var parts = dateStr.split('-');
+  var y = parts[0]; var m = parts[1]; var d = parts[2];
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[parseInt(m,10)-1] + ' ' + parseInt(d,10) + ', ' + y;
 }
 
 function renderDashboard() {
   document.getElementById('loading-state').style.display = 'none';
-  const subs = filteredSubmissions;
+  var subs = filteredSubmissions;
 
   if (subs.length === 0) {
     document.getElementById('empty-state').style.display = 'block';
@@ -386,207 +414,213 @@ function renderDashboard() {
   document.getElementById('empty-state').style.display = 'none';
   document.getElementById('dashboard-content').style.display = 'block';
 
-  const totalPtsC = subs.reduce((a,s) => a + (parseFloat(s.ptsCommitted)||0), 0);
-  const totalPtsD = subs.reduce((a,s) => a + (parseFloat(s.ptsCompleted)||0), 0);
-  const pct = totalPtsC > 0 ? Math.round(totalPtsD/totalPtsC*100) : 0;
-  const snowOpened = subs.reduce((a,s) => a + (parseFloat(s.snowOpened)||0), 0);
-  const snowClosed = subs.reduce((a,s) => a + (parseFloat(s.snowClosed)||0), 0);
+  var totalPtsC = subs.reduce(function(a,s) { return a + (parseFloat(s.ptsCommitted)||0); }, 0);
+  var totalPtsD = subs.reduce(function(a,s) { return a + (parseFloat(s.ptsCompleted)||0); }, 0);
+  var pct = totalPtsC > 0 ? Math.round(totalPtsD/totalPtsC*100) : 0;
+  var snowOpened = subs.reduce(function(a,s) { return a + (parseFloat(s.snowOpened)||0); }, 0);
+  var snowClosed = subs.reduce(function(a,s) { return a + (parseFloat(s.snowClosed)||0); }, 0);
 
-  const allInitiatives = subs.flatMap(s => (s.initiatives||[]).map(i => ({...i, baName:s.baName, sprintNum:s.sprintNum})));
-  const redCount = allInitiatives.filter(i => i.health==='red').length;
-  const amberCount = allInitiatives.filter(i => i.health==='amber').length;
-  const greenCount = allInitiatives.filter(i => i.health==='green').length;
+  var allInitiatives = subs.flatMap(function(s) { return (s.initiatives||[]).map(function(i) { return ({...i, baName:s.baName, sprintNum:s.sprintNum}))); }; }
+  var redCount = allInitiatives.filter(function(i) { return i.health==='red').length; };
+  var amberCount = allInitiatives.filter(function(i) { return i.health==='amber').length; };
+  var greenCount = allInitiatives.filter(function(i) { return i.health==='green').length; };
 
-  const p1Subs = subs.filter(s => s.hasP1);
-  const actionNeeded = subs.filter(s => s.tpmHelp && s.tpmHelp.some(h => h.includes('Action') || h.includes('Decision') || h.includes('Unblock')));
+  var p1Subs = subs.filter(function(s) { return s.hasP1); };
+  var actionNeeded = subs.filter(function(s) { return s.tpmHelp && s.tpmHelp.some(function(h) { return h.includes('Action') || h.includes('Decision') || h.includes('Unblock'))); }; }
 
-  let html = '';
+  var html = '';
 
   // Escalation banner
   if (p1Subs.length > 0 || redCount > 0) {
-    html += `<div class="escalation-banner">
-      <div class="esc-icon">⚠</div>
+    html += '<div class="escalation-banner">
+      <div class="esc-icon">&#9888;</div>
       <div class="esc-body">
-        <div class="esc-title">Attention Required — ${p1Subs.length + redCount} item(s) need immediate review</div>`;
-    p1Subs.forEach(s => {
-      html += `<div class="esc-item">P1/Escalation — ${s.baName}: ${s.p1What?.substring(0,120) || ''}…</div>`;
+        <div class="esc-title">Attention Required &#8212; ' + (p1Subs.length + redCount) + ' item(s) need immediate review</div>';
+    p1Subs.forEach(function(s) {
+      html += '<div class="esc-item">P1/Escalation &#8212; ' + (s.baName) + ': ' + (s.p1What && p1What.substring(0,120) || '') + '&#8230;</div>';
     });
-    allInitiatives.filter(i=>i.health==='red').forEach(i => {
-      html += `<div class="esc-item">Blocked initiative — ${i.baName} / ${i.name}: ${(i.blocked||'').substring(0,100)}…</div>`;
+    allInitiatives.filter(function(i) { return i.health==='red').forEach(function(i) {; }
+      html += '<div class="esc-item">Blocked initiative &#8212; ' + (i.baName) + ' / ' + (i.name) + ': ' + ((i.blocked||'').substring(0,100)) + '&#8230;</div>';
     });
-    html += `</div></div>`;
+    html += '</div></div>';
   }
 
   // Summary bar
-  html += `<div class="summary-bar">
-    <div class="sum-card"><div class="sum-label">BAs Submitted</div><div class="sum-value val-purple">${subs.length}</div><div class="sum-sub">of 7 expected</div></div>
-    <div class="sum-card"><div class="sum-label">Sprint Velocity</div><div class="sum-value val-text">${pct}%</div><div class="sum-sub">${totalPtsD}/${totalPtsC} pts</div></div>
-    <div class="sum-card"><div class="sum-label">Blocked</div><div class="sum-value ${redCount>0?'val-red':'val-green'}">${redCount}</div><div class="sum-sub">initiatives</div></div>
-    <div class="sum-card"><div class="sum-label">At Risk</div><div class="sum-value ${amberCount>0?'val-amber':'val-green'}">${amberCount}</div><div class="sum-sub">initiatives</div></div>
-    <div class="sum-card"><div class="sum-label">SNOW Opened</div><div class="sum-value val-amber">${snowOpened}</div><div class="sum-sub">${snowClosed} closed</div></div>
-    <div class="sum-card"><div class="sum-label">Action Needed</div><div class="sum-value ${actionNeeded.length>0?'val-red':'val-green'}">${actionNeeded.length}</div><div class="sum-sub">TPM items</div></div>
-  </div>`;
+  html += '<div class="summary-bar">
+    <div class="sum-card"><div class="sum-label">BAs Submitted</div><div class="sum-value val-purple">' + (subs.length) + '</div><div class="sum-sub">of 7 expected</div></div>
+    <div class="sum-card"><div class="sum-label">Sprint Velocity</div><div class="sum-value val-text">' + (pct) + '%</div><div class="sum-sub">' + (totalPtsD) + '/' + (totalPtsC) + ' pts</div></div>
+    <div class="sum-card"><div class="sum-label">Blocked</div><div class="sum-value ' + (redCount>0?'val-red':'val-green') + '">' + (redCount) + '</div><div class="sum-sub">initiatives</div></div>
+    <div class="sum-card"><div class="sum-label">At Risk</div><div class="sum-value ' + (amberCount>0?'val-amber':'val-green') + '">' + (amberCount) + '</div><div class="sum-sub">initiatives</div></div>
+    <div class="sum-card"><div class="sum-label">SNOW Opened</div><div class="sum-value val-amber">' + (snowOpened) + '</div><div class="sum-sub">' + (snowClosed) + ' closed</div></div>
+    <div class="sum-card"><div class="sum-label">Action Needed</div><div class="sum-value ' + (actionNeeded.length>0?'val-red':'val-green') + '">' + (actionNeeded.length) + '</div><div class="sum-sub">TPM items</div></div>
+  </div>';
 
   // Health grid
   if (allInitiatives.length > 0) {
-    html += `<div class="dash-section"><div class="dash-section-title"><span>Initiative Health (${allInitiatives.length} total)</span><span>${greenCount} green · ${amberCount} amber · ${redCount} blocked</span></div>
-    <div class="health-grid">`;
-    allInitiatives.forEach(i => {
-      const cls = i.health || 'green';
-      const pillCls = `pill-${cls}`;
-      let detail = '';
+    html += '<div class="dash-section"><div class="dash-section-title"><span>Initiative Health (' + (allInitiatives.length) + ' total)</span><span>' + (greenCount) + ' green &#183; ' + (amberCount) + ' amber &#183; ' + (redCount) + ' blocked</span></div>
+    <div class="health-grid">';
+    allInitiatives.forEach(function(i) {
+      var cls = i.health || 'green';
+      var pillCls = 'pill-' + (cls);
+      var detail = '';
       if (cls==='green') detail = i.nextWeek || 'No updates noted';
       if (cls==='amber') detail = i.atRisk || '';
       if (cls==='red') detail = i.blocked || '';
-      html += `<div class="health-card ${cls}">
+      html += '<div class="health-card ' + (cls) + '">
         <div class="hc-top">
-          <div class="hc-name">${i.name||'Unnamed initiative'}</div>
-          <span class="health-pill ${pillCls}">${cls.toUpperCase()}</span>
+          <div class="hc-name">' + (i.name||'Unnamed initiative') + '</div>
+          <span class="health-pill ' + (pillCls) + '">' + (cls.toUpperCase()) + '</span>
         </div>
-        <div class="hc-team">${i.baName} · ${i.sprintNum||''}</div>
-        <div class="hc-detail">${detail.substring(0,120)}${detail.length>120?'…':''}</div>
-      </div>`;
+        <div class="hc-team">' + (i.baName) + ' &#183; ' + (i.sprintNum||'') + '</div>
+        <div class="hc-detail">' + (detail.substring(0,120)) + (detail.length>120?'&#8230;':'') + '</div>
+      </div>';
     });
-    html += `</div></div>`;
+    html += '</div></div>';
   }
 
   // TPM action items
-  const tpmItems = subs.filter(s => s.tpmHelp && s.tpmHelp.length > 0 && !s.tpmHelp.every(h=>h.includes('None')));
+  var tpmItems = subs.filter(function(s) { return s.tpmHelp && s.tpmHelp.length > 0 && !s.tpmHelp.every(function(h) { return h.includes('None'))); }; }
   if (tpmItems.length > 0) {
-    html += `<div class="dash-section"><div class="dash-section-title">TPM Action Items &amp; FYIs</div>`;
-    tpmItems.forEach(s => {
-      const tags = s.tpmHelp || [];
-      const tagHtml = tags.map(t => {
-        let cls = 'tag-fyi';
+    html += '<div class="dash-section"><div class="dash-section-title">TPM Action Items &amp; FYIs</div>';
+    tpmItems.forEach(function(s) {
+      var tags = s.tpmHelp || [];
+      var tagHtml = tags.map(function(t) {
+        var cls = 'tag-fyi';
         if (t.includes('Action')) cls='tag-action';
         else if (t.includes('Decision')) cls='tag-decision';
         else if (t.includes('Unblock')) cls='tag-unblock';
         else if (t.includes('None')) cls='tag-none';
-        return `<span class="tpm-tag ${cls}">${t}</span>`;
+        return '<span class="tpm-tag ' + (cls) + '">' + (t) + '</span>';
       }).join('');
-      html += `<div class="tpm-row">
+      html += '<div class="tpm-row">
         <div class="tpm-row-left">
-          <div class="tpm-ba">${s.baName}</div>
-          <div class="tpm-sprint">${s.sprintNum||''}</div>
+          <div class="tpm-ba">' + (s.baName) + '</div>
+          <div class="tpm-sprint">' + (s.sprintNum||'') + '</div>
         </div>
         <div class="tpm-row-right">
-          <div class="tpm-tags">${tagHtml}</div>
-          <div class="tpm-detail-text">${s.tpmDetail||'No detail provided.'}</div>
+          <div class="tpm-tags">' + (tagHtml) + '</div>
+          <div class="tpm-detail-text">' + (s.tpmDetail||'No detail provided.') + '</div>
         </div>
-      </div>`;
+      </div>';
     });
-    html += `</div>`;
+    html += '</div>';
   }
 
   // BA sprint metrics table
-  html += `<div class="dash-section"><div class="dash-section-title">Sprint Metrics by BA</div>
+  html += '<div class="dash-section"><div class="dash-section-title">Sprint Metrics by BA</div>
     <div class="ba-table-wrap"><table class="ba-table"><thead><tr>
       <th>BA</th><th>Sprint</th><th>Teams</th><th>Pts Committed</th><th>Pts Completed</th><th>Velocity</th><th>Carryover</th><th>P1?</th><th>Health</th>
-    </tr></thead><tbody>`;
+    </tr></thead><tbody>';
 
-  subs.forEach((s,idx) => {
-    const ptsC = parseFloat(s.ptsCommitted)||0;
-    const ptsD = parseFloat(s.ptsCompleted)||0;
-    const pctV = ptsC > 0 ? Math.round(ptsD/ptsC*100) : 0;
-    const pctColor = pctV >= 90 ? 'var(--green)' : pctV >= 70 ? 'var(--amber)' : 'var(--red)';
-    const teams = (s.teams||[]).join(', ');
-    const healthCounts = (s.initiatives||[]).reduce((acc,i)=>{ acc[i.health]=(acc[i.health]||0)+1; return acc; }, {});
-    const healthSummary = Object.entries(healthCounts).map(([k,v])=>`<span class="dot dot-${k}"></span> ${v}`).join(' ');
+  subs.forEachfunction((s,idx) {
+    var ptsC = parseFloat(s.ptsCommitted)||0;
+    var ptsD = parseFloat(s.ptsCompleted)||0;
+    var pctV = ptsC > 0 ? Math.round(ptsD/ptsC*100) : 0;
+    var pctColor = pctV >= 90 ? 'var(--green)' : pctV >= 70 ? 'var(--amber)' : 'var(--red)';
+    var teams = (s.teams||[]).join(', ');
+    var healthCounts = (s.initiatives||[]).reducefunction((acc,i) { acc[i.health]=(acc[i.health]||0)+1; return acc; }, {});
+      var healthSummary = '';
+      var hkeys2 = Object.keys(healthCounts);
+      for (var hki2 = 0; hki2 < hkeys2.length; hki2++) {
+        healthSummary += '<span class="dot dot-' + hkeys2[hki2] + '"></span> ' + healthCounts[hkeys2[hki2]] + ' ';
+      }
+      healthSummary = healthSummary.trim();
 
-    html += `<tr style="cursor:pointer" onclick="toggleDrawer(${idx})">
-      <td style="font-weight:500">${s.baName}</td>
-      <td style="font-family:'Inter Tight',Arial,sans-serif;color:var(--text3)">${s.sprintNum||'—'}</td>
-      <td style="color:var(--text2);font-size:11px">${teams||'—'}</td>
-      <td style="font-family:'Inter Tight',Arial,sans-serif">${ptsC||'—'}</td>
-      <td style="font-family:'Inter Tight',Arial,sans-serif">${ptsD||'—'}</td>
+    html += '<tr style="cursor:pointer" onclick="toggleDrawer(' + (idx) + ')">
+      <td style="font-weight:500">' + (s.baName) + '</td>
+      <td style="font-family:\'Inter Tight\',Arial,sans-serif;color:var(--text3)">' + (s.sprintNum||'&#8212;') + '</td>
+      <td style="color:var(--text2);font-size:11px">' + (teams||'&#8212;') + '</td>
+      <td style="font-family:\'Inter Tight\',Arial,sans-serif">' + (ptsC||'&#8212;') + '</td>
+      <td style="font-family:\'Inter Tight\',Arial,sans-serif">' + (ptsD||'&#8212;') + '</td>
       <td>
         <div class="pct-bar">
-          <div class="pct-track"><div class="pct-fill" style="width:${pctV}%;background:${pctColor}"></div></div>
-          <span style="font-size:11px;font-family:'Inter Tight',Arial,sans-serif;color:${pctColor};min-width:36px">${pctV}%</span>
+          <div class="pct-track"><div class="pct-fill" style="width:' + (pctV) + '%;background:' + (pctColor) + '"></div></div>
+          <span style="font-size:11px;font-family:\'Inter Tight\',Arial,sans-serif;color:' + (pctColor) + ';min-width:36px">' + (pctV) + '%</span>
         </div>
       </td>
-      <td>${s.hasCarryover ? `<span style="color:var(--amber)">Yes</span>` : `<span style="color:var(--text3)">No</span>`}</td>
-      <td>${s.hasP1 ? `<span style="color:var(--red)">⚠ Yes</span>` : `<span style="color:var(--text3)">No</span>`}</td>
-      <td>${healthSummary||'—'}</td>
+      <td>${s.hasCarryover ? '<span style="color:var(--amber)">Yes</span>' : '<span style="color:var(--text3)">No</span>'}</td>
+      <td>${s.hasP1 ? '<span style="color:var(--red)">&#9888; Yes</span>' : '<span style="color:var(--text3)">No</span>'}</td>
+      <td>' + (healthSummary||'&#8212;') + '</td>
     </tr>
-    <tr id="drawer-${idx}" style="display:none">
+    <tr id="drawer-' + (idx) + '" style="display:none">
       <td colspan="9" style="padding:0">
         <div style="padding:16px;background:var(--surface2);border-top:1px solid var(--border)">
-          ${renderDrawer(s)}
+          ' + (renderDrawer(s)) + '
         </div>
       </td>
-    </tr>`;
+    </tr>';
   });
 
-  html += `</tbody></table></div></div>`;
+  html += '</tbody></table></div></div>';
 
   // SNOW breakdown
-  html += `<div class="dash-section"><div class="dash-section-title">SNOW Signal by BA</div><div class="snow-grid">`;
-  subs.forEach(s => {
-    const hasP1 = s.hasP1;
-    html += `<div class="snow-card">
-      <div class="snow-ba">${s.baName} <span style="font-size:10px;color:var(--text3);font-family:'Inter Tight',Arial,sans-serif">${s.sprintNum||''}</span></div>
+  html += '<div class="dash-section"><div class="dash-section-title">SNOW Signal by BA</div><div class="snow-grid">';
+  subs.forEach(function(s) {
+    var hasP1 = s.hasP1;
+    html += '<div class="snow-card">
+      <div class="snow-ba">' + (s.baName) + ' <span style="font-size:10px;color:var(--text3);font-family:\'Inter Tight\',Arial,sans-serif">' + (s.sprintNum||'') + '</span></div>
       <div class="snow-nums">
-        <div class="snow-num"><span class="sn-val sn-opened">${s.snowOpened||0}</span><span class="sn-lbl">Opened</span></div>
-        <div class="snow-num"><span class="sn-val sn-closed">${s.snowClosed||0}</span><span class="sn-lbl">Closed</span></div>
-        <div class="snow-num"><span class="sn-val sn-flight">${s.snowFlight||0}</span><span class="sn-lbl">In Flight</span></div>
+        <div class="snow-num"><span class="sn-val sn-opened">' + (s.snowOpened||0) + '</span><span class="sn-lbl">Opened</span></div>
+        <div class="snow-num"><span class="sn-val sn-closed">' + (s.snowClosed||0) + '</span><span class="sn-lbl">Closed</span></div>
+        <div class="snow-num"><span class="sn-val sn-flight">' + (s.snowFlight||0) + '</span><span class="sn-lbl">In Flight</span></div>
       </div>
-      ${hasP1 ? `<div style="margin-top:8px;font-size:10px;color:var(--red);background:var(--orange-dim);padding:4px 8px;border-radius:4px;font-family:'Inter Tight',Arial,sans-serif">P1 / ESCALATION</div>`:''}
-    </div>`;
+      ${hasP1 ? '<div style="margin-top:8px;font-size:10px;color:var(--red);background:var(--orange-dim);padding:4px 8px;border-radius:4px;font-family:'Inter Tight',Arial,sans-serif">P1 / ESCALATION</div>':\'\'}
+    </div>';
   });
-  html += `</div></div>`;
+  html += '</div></div>';
 
   // Wins & improvements
-  html += `<div class="dash-section"><div class="dash-section-title">Wins &amp; Improvement Focus</div><div class="health-grid">`;
-  subs.forEach(s => {
-    html += `<div class="health-card" style="border-left-color:var(--purple)">
-      <div class="hc-top"><div class="hc-name">${s.baName}</div><span class="health-pill pill-blue">${s.sprintNum||''}</span></div>
-      <div class="hc-detail" style="color:var(--green)">Win: ${(s.biggestWin||'').substring(0,90)}${(s.biggestWin||'').length>90?'…':''}</div>
-      <div class="hc-detail" style="color:var(--amber);margin-top:4px">Focus: ${(s.improve||'').substring(0,90)}${(s.improve||'').length>90?'…':''}</div>
-    </div>`;
+  html += '<div class="dash-section"><div class="dash-section-title">Wins &amp; Improvement Focus</div><div class="health-grid">';
+  subs.forEach(function(s) {
+    html += '<div class="health-card" style="border-left-color:var(--purple)">
+      <div class="hc-top"><div class="hc-name">' + (s.baName) + '</div><span class="health-pill pill-blue">' + (s.sprintNum||'') + '</span></div>
+      <div class="hc-detail" style="color:var(--green)">Win: ' + ((s.biggestWin||'').substring(0,90)) + ((s.biggestWin||'').length>90?'&#8230;':'') + '</div>
+      <div class="hc-detail" style="color:var(--amber);margin-top:4px">Focus: ' + ((s.improve||'').substring(0,90)) + ((s.improve||'').length>90?'&#8230;':'') + '</div>
+    </div>';
   });
-  html += `</div></div>`;
+  html += '</div></div>';
 
   document.getElementById('dashboard-content').innerHTML = html;
-  const filterDesc = filteredSubmissions.length < allSubmissions.length
-    ? `${subs.length} of ${allSubmissions.length} submissions (filtered)`
-    : `${subs.length} submissions`;
-  document.getElementById('last-updated').textContent = `${filterDesc} · Last refreshed ${new Date().toLocaleTimeString()}`;
+  var filterDesc = filteredSubmissions.length < allSubmissions.length
+    ? (subs.length) + ' of ' + (allSubmissions.length) + ' submissions (filtered)'
+    : (subs.length) + ' submissions';
+  document.getElementById('last-updated').textContent = (filterDesc) + ' &#183; Last refreshed ' + (new Date().toLocaleTimeString());
 }
 
 function renderDrawer(s) {
-  let h = `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:12px">`;
-  h += `<div><div style="font-size:10px;font-family:'Inter Tight',Arial,sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Key Work Delivered</div><div style="font-size:12px;color:var(--text2);line-height:1.5;white-space:pre-line">${s.keyDelivered||'—'}</div></div>`;
-  h += `<div><div style="font-size:10px;font-family:'Inter Tight',Arial,sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Biggest Win</div><div style="font-size:12px;color:var(--green);line-height:1.5">${s.biggestWin||'—'}</div></div>`;
-  h += `<div><div style="font-size:10px;font-family:'Inter Tight',Arial,sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Dependencies / Risks</div><div style="font-size:12px;color:var(--text2);line-height:1.5">${s.depsRisks||'—'}</div></div>`;
-  h += `</div>`;
+  var h = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:12px">';
+  h += '<div><div style="font-size:10px;font-family:\'Inter Tight\',Arial,sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Key Work Delivered</div><div style="font-size:12px;color:var(--text2);line-height:1.5;white-space:pre-line">' + (s.keyDelivered||'&#8212;') + '</div></div>';
+  h += '<div><div style="font-size:10px;font-family:\'Inter Tight\',Arial,sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Biggest Win</div><div style="font-size:12px;color:var(--green);line-height:1.5">' + (s.biggestWin||'&#8212;') + '</div></div>';
+  h += '<div><div style="font-size:10px;font-family:\'Inter Tight\',Arial,sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Dependencies / Risks</div><div style="font-size:12px;color:var(--text2);line-height:1.5">' + (s.depsRisks||'&#8212;') + '</div></div>';
+  h += '</div>';
   if (s.hasCarryover && s.coWhat) {
-    h += `<div style="margin-top:10px;padding:10px 12px;background:var(--yellow-dim);border-radius:var(--radius);border:1px solid rgba(245,166,35,0.2)"><span style="font-size:10px;font-family:'Inter Tight',Arial,sans-serif;color:var(--amber);text-transform:uppercase;letter-spacing:0.5px">Carryover</span><p style="font-size:12px;color:var(--text2);margin-top:4px;line-height:1.5">${s.coWhat} — Reason: ${s.coReason||'not specified'}</p></div>`;
+    h += '<div style="margin-top:10px;padding:10px 12px;background:var(--yellow-dim);border-radius:var(--radius);border:1px solid rgba(245,166,35,0.2)"><span style="font-size:10px;font-family:\'Inter Tight\',Arial,sans-serif;color:var(--amber);text-transform:uppercase;letter-spacing:0.5px">Carryover</span><p style="font-size:12px;color:var(--text2);margin-top:4px;line-height:1.5">' + (s.coWhat) + ' &#8212; Reason: ' + (s.coReason||'not specified') + '</p></div>';
   }
   if (s.hasP1 && s.p1What) {
-    h += `<div style="margin-top:10px;padding:10px 12px;background:var(--orange-dim);border-radius:var(--radius);border:1px solid rgba(242,87,87,0.2)"><span style="font-size:10px;font-family:'Inter Tight',Arial,sans-serif;color:var(--red);text-transform:uppercase;letter-spacing:0.5px">P1 / Escalation</span><p style="font-size:12px;color:var(--text2);margin-top:4px;line-height:1.5">${s.p1What}</p><p style="font-size:12px;color:var(--text3);margin-top:4px">Status: ${s.p1Status} | Next: ${s.p1Next}</p></div>`;
+    h += '<div style="margin-top:10px;padding:10px 12px;background:var(--orange-dim);border-radius:var(--radius);border:1px solid rgba(242,87,87,0.2)"><span style="font-size:10px;font-family:\'Inter Tight\',Arial,sans-serif;color:var(--red);text-transform:uppercase;letter-spacing:0.5px">P1 / Escalation</span><p style="font-size:12px;color:var(--text2);margin-top:4px;line-height:1.5">' + (s.p1What) + '</p><p style="font-size:12px;color:var(--text3);margin-top:4px">Status: ' + (s.p1Status) + ' | Next: ' + (s.p1Next) + '</p></div>';
   }
   if (s.workItems && s.workItems.length > 0) {
-    h += `<div style="margin-top:12px"><div style="font-size:10px;font-family:'Inter Tight',Arial,sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Work Items This Week</div>`;
-    s.workItems.filter(w=>w.desc).forEach(w => {
-      const statusColor = w.status==='Completed'?'var(--green)':w.status==='Blocked'?'var(--red)':w.status==='In Progress'?'var(--blue)':'var(--text3)';
-      h += `<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;align-items:flex-start">
-        <span style="color:${statusColor};min-width:80px;font-family:'Inter Tight',Arial,sans-serif;font-size:10px;margin-top:2px">${w.status||'—'}</span>
-        <span style="flex:1;color:var(--text2)">${w.desc}</span>
-        <span style="color:var(--text3);font-size:11px;min-width:120px">${w.epic||''}</span>
-      </div>`;
+    h += '<div style="margin-top:12px"><div style="font-size:10px;font-family:\'Inter Tight\',Arial,sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Work Items This Week</div>';
+    s.workItems.filter(function(w) { return w.desc).forEach(function(w) {; }
+      var statusColor = w.status==='Completed'?'var(--green)':w.status==='Blocked'?'var(--red)':w.status==='In Progress'?'var(--blue)':'var(--text3)';
+      h += '<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;align-items:flex-start">
+        <span style="color:' + (statusColor) + ';min-width:80px;font-family:\'Inter Tight\',Arial,sans-serif;font-size:10px;margin-top:2px">' + (w.status||'&#8212;') + '</span>
+        <span style="flex:1;color:var(--text2)">' + (w.desc) + '</span>
+        <span style="color:var(--text3);font-size:11px;min-width:120px">' + (w.epic||'') + '</span>
+      </div>';
     });
-    h += `</div>`;
+    h += '</div>';
   }
   return h;
 }
 
 function toggleDrawer(idx) {
-  const row = document.getElementById('drawer-' + idx);
+  var row = document.getElementById('drawer-' + idx);
   if (row) row.style.display = row.style.display === 'none' ? '' : 'none';
 }
 
-window.addEventListener('DOMContentLoaded', loadDashboard);
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', loadDashboard); } else { loadDashboard(); }
+
 </script>
 </body>
 </html>
