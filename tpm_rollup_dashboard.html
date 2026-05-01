@@ -420,13 +420,30 @@ function renderDashboard() {
   var snowOpened = subs.reduce(function(a,s) { return a + (parseFloat(s.snowOpened)||0); }, 0);
   var snowClosed = subs.reduce(function(a,s) { return a + (parseFloat(s.snowClosed)||0); }, 0);
 
-  var allInitiatives = subs.flatMap(function(s) { return (s.initiatives||[]).map(function(i) { return ({...i, baName:s.baName, sprintNum:s.sprintNum}))); }; }
-  var redCount = allInitiatives.filter(function(i) { return i.health==='red').length; };
-  var amberCount = allInitiatives.filter(function(i) { return i.health==='amber').length; };
-  var greenCount = allInitiatives.filter(function(i) { return i.health==='green').length; };
+  var allInitiatives = [];
+  for (var si = 0; si < subs.length; si++) {
+    var inits = subs[si].initiatives || [];
+    for (var ii = 0; ii < inits.length; ii++) {
+      var init = {};
+      for (var k in inits[ii]) { init[k] = inits[ii][k]; }
+      init.baName = subs[si].baName;
+      init.sprintNum = subs[si].sprintNum;
+      allInitiatives.push(init);
+    }
+  }
+  var redCount = 0; var amberCount = 0; var greenCount = 0;
+  for (var ai = 0; ai < allInitiatives.length; ai++) {
+    if (allInitiatives[ai].health === 'red') redCount++;
+    else if (allInitiatives[ai].health === 'amber') amberCount++;
+    else if (allInitiatives[ai].health === 'green') greenCount++;
+  }
 
-  var p1Subs = subs.filter(function(s) { return s.hasP1); };
-  var actionNeeded = subs.filter(function(s) { return s.tpmHelp && s.tpmHelp.some(function(h) { return h.includes('Action') || h.includes('Decision') || h.includes('Unblock'))); }; }
+  var p1Subs = subs.filter(function(s) { return s.hasP1; });
+  var actionNeeded = subs.filter(function(s) {
+    return s.tpmHelp && s.tpmHelp.some(function(h) {
+      return h.indexOf('Action') >= 0 || h.indexOf('Decision') >= 0 || h.indexOf('Unblock') >= 0;
+    });
+  });
 
   var html = '';
 
@@ -479,17 +496,17 @@ function renderDashboard() {
   }
 
   // TPM action items
-  var tpmItems = subs.filter(function(s) { return s.tpmHelp && s.tpmHelp.length > 0 && !s.tpmHelp.every(function(h) { return h.includes('None'))); }; }
+  var tpmItems = subs.filter(function(s) { return s.tpmHelp && s.tpmHelp.length > 0 && !s.tpmHelp.every(function(h) { return h.indexOf('None') >= 0)); }; }
   if (tpmItems.length > 0) {
     html += '<div class="dash-section"><div class="dash-section-title">TPM Action Items &amp; FYIs</div>';
     tpmItems.forEach(function(s) {
       var tags = s.tpmHelp || [];
       var tagHtml = tags.map(function(t) {
         var cls = 'tag-fyi';
-        if (t.includes('Action')) cls='tag-action';
-        else if (t.includes('Decision')) cls='tag-decision';
-        else if (t.includes('Unblock')) cls='tag-unblock';
-        else if (t.includes('None')) cls='tag-none';
+        if (t.indexOf('Action') >= 0) cls='tag-action';
+        else if (t.indexOf('Decision') >= 0) cls='tag-decision';
+        else if (t.indexOf('Unblock') >= 0) cls='tag-unblock';
+        else if (t.indexOf('None') >= 0) cls='tag-none';
         return '<span class="tpm-tag ' + (cls) + '">' + (t) + '</span>';
       }).join('');
       html += '<div class="tpm-row">
