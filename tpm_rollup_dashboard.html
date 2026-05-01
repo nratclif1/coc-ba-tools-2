@@ -247,10 +247,10 @@ function loadDashboard() {
   }
 
   var apiUrl = SHAREPOINT_SITE_URL.replace(/\/$/, '') +
-    '/_api/web/lists/getbytitle('' + LIST_NAME + '')/items' +
-    '?$select=SubmissionData,BAName,WeekEnding,SprintNumber,SubmittedAt' +
-    '&$orderby=SubmittedAt desc' +
-    '&$top=100';
+    "/_api/web/lists/getbytitle('" + LIST_NAME + "')/items" +
+    "?$select=SubmissionData,BAName,WeekEnding,SprintNumber,SubmittedAt" +
+    "&$orderby=SubmittedAt%20desc" +
+    "&$top=100";
 
   fetch(apiUrl, {
     method: 'GET',
